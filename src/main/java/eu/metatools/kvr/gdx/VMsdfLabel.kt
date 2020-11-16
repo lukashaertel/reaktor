@@ -13,7 +13,7 @@ import com.maltaisn.msdfgdx.widget.MsdfLabel
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
-data class VMsdfLabel(
+open class VMsdfLabel(
     val text: CharSequence?,
     val shader: MsdfShader,
     val font: MsdfFont,
@@ -22,32 +22,46 @@ data class VMsdfLabel(
     val lineAlign: Int,
     val wrap: Boolean,
     val disabled: Boolean,
-
-    // VWidget
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-
-    // VActor
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<MsdfLabel>?
-) : VWidget<MsdfLabel>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<MsdfLabel>?
+) : VWidget<MsdfLabel>(
+    fillParent,
+    layoutEnabled,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         val defaultFontStyle = FontStyle()
         const val defaultLabelAlign = Align.left
@@ -59,6 +73,7 @@ data class VMsdfLabel(
         private val shader = hidden<MsdfLabel, MsdfShader>("shader")
         private val skin = hidden<MsdfLabel, Skin>("skin")
         private val wrap = hidden<Label, Boolean>("wrap")
+        private const val ownProps = 8
     }
 
     override fun create() = MsdfLabel(text, Skin().also {
@@ -73,7 +88,7 @@ data class VMsdfLabel(
         super.assign(actual)
     }
 
-    override fun props() = 26
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> text
@@ -84,25 +99,7 @@ data class VMsdfLabel(
         5 -> lineAlign
         6 -> wrap
         7 -> disabled
-        8 -> fillParent
-        9 -> layoutEnabled
-        10 -> color
-        11 -> name
-        12 -> originX
-        13 -> originY
-        14 -> x
-        15 -> y
-        16 -> width
-        17 -> height
-        18 -> rotation
-        19 -> scaleX
-        20 -> scaleY
-        21 -> visible
-        22 -> debug
-        23 -> touchable
-        24 -> listeners
-        25 -> captureListeners
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: MsdfLabel): Any? = when (prop) {
@@ -114,25 +111,7 @@ data class VMsdfLabel(
         5 -> actual.lineAlign
         6 -> wrap(actual)
         7 -> actual.isDisabled
-        8 -> fillParent(actual)
-        9 -> layoutEnabled(actual)
-        10 -> actual.color
-        11 -> actual.name
-        12 -> actual.originX
-        13 -> actual.originY
-        14 -> actual.x
-        15 -> actual.y
-        16 -> actual.width
-        17 -> actual.height
-        18 -> actual.rotation
-        19 -> actual.scaleX
-        20 -> actual.scaleY
-        21 -> actual.isVisible
-        22 -> actual.debug
-        23 -> actual.touchable
-        24 -> wrapListeners(prop, actual.listeners)
-        25 -> wrapListeners(prop, actual.captureListeners)
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: MsdfLabel, value: Any?) {
@@ -153,25 +132,7 @@ data class VMsdfLabel(
             5 -> actual.setAlignment(labelAlign, value as Int)
             6 -> actual.setWrap(value as Boolean)
             7 -> actual.isDisabled = value as Boolean
-            8 -> actual.setFillParent(value as Boolean)
-            9 -> actual.setLayoutEnabled(value as Boolean)
-            10 -> actual.color = value as Color
-            11 -> actual.name = value as String?
-            12 -> actual.originX = value as Float
-            13 -> actual.originY = value as Float
-            14 -> actual.x = value as Float
-            15 -> actual.y = value as Float
-            16 -> actual.width = value as Float
-            17 -> actual.height = value as Float
-            18 -> actual.rotation = value as Float
-            19 -> actual.scaleX = value as Float
-            20 -> actual.scaleY = value as Float
-            21 -> actual.isVisible = value as Boolean
-            22 -> actual.debug = value as Boolean
-            23 -> actual.touchable = value as Touchable
-            24 -> throw UnsupportedOperationException()
-            25 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 }

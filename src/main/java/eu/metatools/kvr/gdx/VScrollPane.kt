@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
-data class VScrollPane(
+open class VScrollPane(
     val actor: VActor<*>,
     val style: ScrollPaneStyle,
     val scrollX: Float,
@@ -35,28 +35,48 @@ data class VScrollPane(
     val smoothScrolling: Boolean,
     val scrollbarsOnTop: Boolean,
     val variableSizeKnobs: Boolean,
-
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-    override val children: List<VActor<*>>,
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-    override val ref: Ref<ScrollPane>?
-) : VWidgetGroup<ScrollPane>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    children: List<VActor<*>>,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<ScrollPane>?
+) : VWidgetGroup<ScrollPane>(
+    fillParent,
+    layoutEnabled,
+    children,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         const val defaultScrollX: Float = 0f
         const val defaultScrollY: Float = 0f
@@ -96,6 +116,8 @@ data class VScrollPane(
         val scrollBarTouch = hidden<ScrollPane, Boolean>("scrollBarTouch")
         val smoothScrolling = hidden<ScrollPane, Boolean>("smoothScrolling")
         val scrollbarsOnTop = hidden<ScrollPane, Boolean>("scrollbarsOnTop")
+
+        private const val ownProps = 25
     }
 
     override fun create() = ScrollPane(actor.make(), style)
@@ -120,7 +142,7 @@ data class VScrollPane(
         super.assign(actual)
     }
 
-    override fun props() = 44
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> actor
@@ -148,26 +170,7 @@ data class VScrollPane(
         22 -> smoothScrolling
         23 -> scrollbarsOnTop
         24 -> variableSizeKnobs
-        25 -> fillParent
-        26 -> layoutEnabled
-        27 -> children
-        28 -> color
-        29 -> name
-        30 -> originX
-        31 -> originY
-        32 -> x
-        33 -> y
-        34 -> width
-        35 -> height
-        36 -> rotation
-        37 -> scaleX
-        38 -> scaleY
-        39 -> visible
-        40 -> debug
-        41 -> touchable
-        42 -> listeners
-        43 -> captureListeners
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: ScrollPane): Any? = when (prop) {
@@ -196,26 +199,7 @@ data class VScrollPane(
         22 -> smoothScrolling(actual)
         23 -> scrollbarsOnTop(actual)
         24 -> actual.variableSizeKnobs
-        25 -> fillParent(actual)
-        26 -> layoutEnabled(actual)
-        27 -> wrapChildren(prop, actual)
-        28 -> actual.color
-        29 -> actual.name
-        30 -> actual.originX
-        31 -> actual.originY
-        32 -> actual.x
-        33 -> actual.y
-        34 -> actual.width
-        35 -> actual.height
-        36 -> actual.rotation
-        37 -> actual.scaleX
-        38 -> actual.scaleY
-        39 -> actual.isVisible
-        40 -> actual.debug
-        41 -> actual.touchable
-        42 -> wrapListeners(prop, actual.listeners)
-        43 -> wrapListeners(prop, actual.captureListeners)
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: ScrollPane, value: Any?) {
@@ -245,26 +229,7 @@ data class VScrollPane(
             22 -> actual.setSmoothScrolling(value as Boolean)
             23 -> actual.setScrollbarsOnTop(value as Boolean)
             24 -> actual.variableSizeKnobs = value as Boolean
-            25 -> actual.setFillParent(value as Boolean)
-            26 -> actual.setLayoutEnabled(value as Boolean)
-            27 -> updateActualChildren()
-            28 -> actual.color = value as Color
-            29 -> actual.name = value as String?
-            30 -> actual.originX = value as Float
-            31 -> actual.originY = value as Float
-            32 -> actual.x = value as Float
-            33 -> actual.y = value as Float
-            34 -> actual.width = value as Float
-            35 -> actual.height = value as Float
-            36 -> actual.rotation = value as Float
-            37 -> actual.scaleX = value as Float
-            38 -> actual.scaleY = value as Float
-            39 -> actual.isVisible = value as Boolean
-            40 -> actual.debug = value as Boolean
-            41 -> actual.touchable = value as Touchable
-            42 -> throw UnsupportedOperationException()
-            43 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 }

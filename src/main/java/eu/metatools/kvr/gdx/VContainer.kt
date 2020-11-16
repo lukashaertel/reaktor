@@ -11,7 +11,7 @@ import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
-data class VContainer(
+open class VContainer(
     val actor: VActor<*>,
     val minWidth: Value,
     val minHeight: Value,
@@ -26,35 +26,48 @@ data class VContainer(
     val round: Boolean,
     val clip: Boolean,
     val pad: ExtentValues,
-
-    // VWidgetGroup
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-
-    // VGroup
-    override val children: List<VActor<*>>,
-
-    // VActor
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<Container<Actor>>? = null
-) : VWidgetGroup<Container<Actor>>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    children: List<VActor<*>>,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<Container<Actor>>? = null
+) : VWidgetGroup<Container<Actor>>(
+    fillParent,
+    layoutEnabled,
+    children,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         val defaultMinWidth: Value = Value.minWidth
         val defaultMinHeight: Value = Value.minHeight
@@ -74,6 +87,8 @@ data class VContainer(
         private val fillX = hidden<Container<Actor>, Float>("fillX")
         private val fillY = hidden<Container<Actor>, Float>("fillY")
         private val round = hidden<Container<Actor>, Float>("round")
+
+        private const val ownProps = 14
     }
 
     override fun create() = Container<Actor>()
@@ -96,7 +111,7 @@ data class VContainer(
         super.assign(actual)
     }
 
-    override fun props() = 33
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> actor
@@ -113,27 +128,7 @@ data class VContainer(
         11 -> round
         12 -> clip
         13 -> pad
-        14 -> fillParent
-        15 -> layoutEnabled
-        16 -> children
-        17 -> color
-        18 -> name
-        19 -> originX
-        20 -> originY
-        21 -> x
-        22 -> y
-        23 -> width
-        24 -> height
-        25 -> rotation
-        26 -> scaleX
-        27 -> scaleY
-        28 -> visible
-        29 -> debug
-        30 -> touchable
-        31 -> listeners
-        32 -> captureListeners
-
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: Container<Actor>): Any? = when (prop) {
@@ -151,27 +146,7 @@ data class VContainer(
         11 -> round(actual)
         12 -> actual.clip
         13 -> ExtentValues(actual.padTopValue, actual.padLeftValue, actual.padBottomValue, actual.padRightValue)
-        14 -> fillParent(actual)
-        15 -> layoutEnabled(actual)
-        16 -> wrapChildren(prop, actual)
-        17 -> actual.color
-        18 -> actual.name
-        19 -> actual.originX
-        20 -> actual.originY
-        21 -> actual.x
-        22 -> actual.y
-        23 -> actual.width
-        24 -> actual.height
-        25 -> actual.rotation
-        26 -> actual.scaleX
-        27 -> actual.scaleY
-        28 -> actual.isVisible
-        29 -> actual.debug
-        30 -> actual.touchable
-        31 -> wrapListeners(prop, actual.listeners)
-        32 -> wrapListeners(prop, actual.captureListeners)
-
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: Container<Actor>, value: Any?) {
@@ -190,26 +165,7 @@ data class VContainer(
             11 -> actual.setRound(value as Boolean)
             12 -> actual.clip = value as Boolean
             13 -> actual.pad((value as ExtentValues).top, value.left, value.bottom, value.right)
-            14 -> actual.setFillParent(value as Boolean)
-            15 -> actual.setLayoutEnabled(value as Boolean)
-            16 -> updateActualChildren()
-            17 -> actual.color = value as Color
-            18 -> actual.name = value as String?
-            19 -> actual.originX = value as Float
-            20 -> actual.originY = value as Float
-            21 -> actual.x = value as Float
-            22 -> actual.y = value as Float
-            23 -> actual.width = value as Float
-            24 -> actual.height = value as Float
-            25 -> actual.rotation = value as Float
-            26 -> actual.scaleX = value as Float
-            27 -> actual.scaleY = value as Float
-            28 -> actual.isVisible = value as Boolean
-            29 -> actual.debug = value as Boolean
-            30 -> actual.touchable = value as Touchable
-            31 -> throw UnsupportedOperationException()
-            32 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 }

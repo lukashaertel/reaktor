@@ -13,8 +13,10 @@ import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
+// TODO: Derive from table.
+
 @Deprecated("Unsupported:titleTable")
-data class VWindow(
+open class VWindow(
     val title: String,
     val style: WindowStyle,
     val modal: Boolean,
@@ -25,35 +27,48 @@ data class VWindow(
     val cells: List<VCell>,
     val round: Boolean,
     val pad: ExtentValues,
-
-    // VWidgetGroup
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-
-    // VGroup
-    override val children: List<VActor<*>>,
-
-    // VActor
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<Window>? = null
-) : VWidgetGroup<Window>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    children: List<VActor<*>>,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<Window>?
+) : VWidgetGroup<Window>(
+    fillParent,
+    layoutEnabled,
+    children,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         const val defaultModal = true
         const val defaultMovable = false
@@ -70,6 +85,8 @@ data class VWindow(
         private val round = hidden<Table, Boolean>("round")
         private val resizeBorder = hidden<Window, Int>("resizeBorder")
         private val keepInStage = hidden<Window, Int>("keepWithinStage")
+
+        private const val ownProps = 10
 
         /**
          * Cells and their actors before update.
@@ -119,7 +136,7 @@ data class VWindow(
         super.assign(actual)
     }
 
-    override fun props() = 29
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> title
@@ -132,26 +149,7 @@ data class VWindow(
         7 -> orderedCells
         8 -> round
         9 -> pad
-        10 -> fillParent
-        11 -> layoutEnabled
-        12 -> children
-        13 -> color
-        14 -> name
-        15 -> originX
-        16 -> originY
-        17 -> x
-        18 -> y
-        19 -> width
-        20 -> height
-        21 -> rotation
-        22 -> scaleX
-        23 -> scaleY
-        24 -> visible
-        25 -> debug
-        26 -> touchable
-        27 -> listeners
-        28 -> captureListeners
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: Window): Any? = when (prop) {
@@ -173,27 +171,7 @@ data class VWindow(
         )
         8 -> round(actual)
         9 -> ExtentValues(actual.padTop, actual.padLeft, actual.padBottom, actual.padRight)
-        10 -> fillParent(actual)
-        11 -> layoutEnabled(actual)
-        12 -> wrapChildren(prop, actual)
-        13 -> actual.color
-        14 -> actual.name
-        15 -> actual.originX
-        16 -> actual.originY
-        17 -> actual.x
-        18 -> actual.y
-        19 -> actual.width
-        20 -> actual.height
-        21 -> actual.rotation
-        22 -> actual.scaleX
-        23 -> actual.scaleY
-        24 -> actual.isVisible
-        25 -> actual.debug
-        26 -> actual.touchable
-        27 -> wrapListeners(prop, actual.listeners)
-        28 -> wrapListeners(prop, actual.captureListeners)
-
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: Window, value: Any?) {
@@ -208,26 +186,7 @@ data class VWindow(
             7 -> throw UnsupportedOperationException()
             8 -> actual.setRound(value as Boolean)
             9 -> actual.pad((value as ExtentValues).top, value.left, value.bottom, value.right)
-            10 -> actual.setFillParent(value as Boolean)
-            11 -> actual.setLayoutEnabled(value as Boolean)
-            12 -> updateActualChildren()
-            13 -> actual.color = value as Color
-            14 -> actual.name = value as String?
-            15 -> actual.originX = value as Float
-            16 -> actual.originY = value as Float
-            17 -> actual.x = value as Float
-            18 -> actual.y = value as Float
-            19 -> actual.width = value as Float
-            20 -> actual.height = value as Float
-            21 -> actual.rotation = value as Float
-            22 -> actual.scaleX = value as Float
-            23 -> actual.scaleY = value as Float
-            24 -> actual.isVisible = value as Boolean
-            25 -> actual.debug = value as Boolean
-            26 -> actual.touchable = value as Touchable
-            27 -> throw UnsupportedOperationException()
-            28 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 

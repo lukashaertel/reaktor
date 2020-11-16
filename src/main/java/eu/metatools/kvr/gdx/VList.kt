@@ -12,39 +12,52 @@ import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
 
-data class VList<T>(
-    // VList
+open class VList<T>(
     val style: ListStyle,
     val typeToSelect: Boolean,
     val items: List<T>,
     val selected: T?,
     val align: Int,
-
-    // VWidget
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-
-    // VActor
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<GdxList<T>>? = null
-) : VWidget<GdxList<T>>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<GdxList<T>>? = null
+) : VWidget<GdxList<T>>(
+    fillParent,
+    layoutEnabled,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         val defaultTypeToSelect: Boolean = false
         val defaultItems: List<*> = listOf<Any>()
@@ -53,6 +66,7 @@ data class VList<T>(
         private val align = hidden<GdxList<*>, Int>("alignment")
 
         private val typeToSelect = hidden<GdxList<*>, Boolean>("typeToSelect")
+        private const val ownProps = 5
     }
 
     override fun create() = GdxList<T>(style)
@@ -66,7 +80,7 @@ data class VList<T>(
         super.assign(actual)
     }
 
-    override fun props() = 23
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> style
@@ -74,25 +88,7 @@ data class VList<T>(
         2 -> items
         3 -> selected
         4 -> align
-        5 -> fillParent
-        6 -> layoutEnabled
-        7 -> color
-        8 -> name
-        9 -> originX
-        10 -> originY
-        11 -> x
-        12 -> y
-        13 -> width
-        14 -> height
-        15 -> rotation
-        16 -> scaleX
-        17 -> scaleY
-        18 -> visible
-        19 -> debug
-        20 -> debug
-        21 -> listeners
-        22 -> captureListeners
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: GdxList<T>): Any? = when (prop) {
@@ -109,25 +105,7 @@ data class VList<T>(
             })
         3 -> actual.selected
         4 -> align(actual)
-        5 -> fillParent(actual)
-        6 -> layoutEnabled(actual)
-        7 -> actual.color
-        8 -> actual.name
-        9 -> actual.originX
-        10 -> actual.originY
-        11 -> actual.x
-        12 -> actual.y
-        13 -> actual.width
-        14 -> actual.height
-        15 -> actual.rotation
-        16 -> actual.scaleX
-        17 -> actual.scaleY
-        18 -> actual.isVisible
-        19 -> actual.debug
-        20 -> actual.touchable
-        21 -> wrapListeners(prop, actual.listeners)
-        22 -> wrapListeners(prop, actual.captureListeners)
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: GdxList<T>, value: Any?) {
@@ -138,26 +116,7 @@ data class VList<T>(
             2 -> throw UnsupportedOperationException()
             3 -> actual.selected = value as T?
             4 -> actual.setAlignment(value as Int)
-
-            5 -> actual.setFillParent(value as Boolean)
-            6 -> actual.setLayoutEnabled(value as Boolean)
-            7 -> actual.color = value as Color
-            8 -> actual.name = value as String?
-            9 -> actual.originX = value as Float
-            10 -> actual.originY = value as Float
-            11 -> actual.x = value as Float
-            12 -> actual.y = value as Float
-            13 -> actual.width = value as Float
-            14 -> actual.height = value as Float
-            15 -> actual.rotation = value as Float
-            16 -> actual.scaleX = value as Float
-            17 -> actual.scaleY = value as Float
-            18 -> actual.isVisible = value as Boolean
-            19 -> actual.debug = value as Boolean
-            20 -> actual.touchable = value as Touchable
-            21 -> throw UnsupportedOperationException()
-            22 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 }

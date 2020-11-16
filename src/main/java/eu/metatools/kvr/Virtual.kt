@@ -9,7 +9,7 @@ interface Virtual<A : Any> {
     /**
      * Number of properties.
      */
-    fun props(): Int
+    val props: Int
 
     /**
      * Gets the property at index [prop] for the [Virtual] object.
@@ -47,7 +47,7 @@ interface Virtual<A : Any> {
  * True if equal with regard to properties only.
  */
 fun Virtual<*>.propsEqual(other: Virtual<*>): Boolean {
-    repeat(props()) {
+    repeat(props) {
         if (getOwn(it) != other.getOwn(it))
             return false
     }

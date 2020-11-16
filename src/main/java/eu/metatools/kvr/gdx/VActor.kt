@@ -6,11 +6,30 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.utils.DelayedRemovalArray
 import eu.metatools.kvr.Delegation
+import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.EventMediator
 import eu.metatools.kvr.gdx.utils.resumeEventMediators
 import eu.metatools.kvr.gdx.utils.suspendEventMediators
 
-abstract class VActor<A : Actor> : VRef<A>() {
+abstract class VActor<A : Actor>(
+    val color: Color,
+    val name: String?,
+    val originX: Float,
+    val originY: Float,
+    val x: Float,
+    val y: Float,
+    val width: Float,
+    val height: Float,
+    val rotation: Float,
+    val scaleX: Float,
+    val scaleY: Float,
+    val visible: Boolean,
+    val debug: Boolean,
+    val touchable: Touchable,
+    val listeners: List<EventListener>,
+    val captureListeners: List<EventListener>,
+    ref: Ref<A>?
+) : VRef<A>(ref) {
     companion object {
         val defaultColor: Color = Color.WHITE
         val defaultName: String? = null
@@ -28,25 +47,9 @@ abstract class VActor<A : Actor> : VRef<A>() {
         val defaultTouchable = Touchable.enabled
         val defaultListeners = listOf<EventListener>()
         val defaultCaptureListeners = listOf<EventListener>()
+
+        private const val ownProps = 16
     }
-
-    abstract val color: Color
-    abstract val name: String?
-    abstract val originX: Float
-    abstract val originY: Float
-    abstract val x: Float
-    abstract val y: Float
-    abstract val width: Float
-    abstract val height: Float
-    abstract val rotation: Float
-    abstract val scaleX: Float
-    abstract val scaleY: Float
-    abstract val visible: Boolean
-    abstract val debug: Boolean
-    abstract val touchable: Touchable
-
-    abstract val listeners: List<EventListener>
-    abstract val captureListeners: List<EventListener>
 
     override fun assign(actual: A) {
         actual.color = color
@@ -69,6 +72,70 @@ abstract class VActor<A : Actor> : VRef<A>() {
             actual.captureListeners.add(EventMediator(captureListener))
 
         super.assign(actual)
+    }
+
+    override val props = ownProps
+
+    override fun getOwn(prop: Int): Any? = when (prop) {
+        0 -> color
+        1 -> name
+        2 -> originX
+        3 -> originY
+        4 -> x
+        5 -> y
+        6 -> width
+        7 -> height
+        8 -> rotation
+        9 -> scaleX
+        10 -> scaleY
+        11 -> visible
+        12 -> debug
+        13 -> touchable
+        14 -> listeners
+        15 -> captureListeners
+        else -> throw IndexOutOfBoundsException(prop)
+    }
+
+    override fun getActual(prop: Int, actual: A): Any? = when (prop) {
+        0 -> actual.color
+        1 -> actual.name
+        2 -> actual.originX
+        3 -> actual.originY
+        4 -> actual.x
+        5 -> actual.y
+        6 -> actual.width
+        7 -> actual.height
+        8 -> actual.rotation
+        9 -> actual.scaleX
+        10 -> actual.scaleY
+        11 -> actual.isVisible
+        12 -> actual.debug
+        13 -> actual.touchable
+        14 -> wrapListeners(prop, actual.listeners)
+        15 -> wrapListeners(prop, actual.captureListeners)
+        else -> throw IndexOutOfBoundsException(prop)
+    }
+
+    override fun updateActual(prop: Int, actual: A, value: Any?) {
+        when (prop) {
+            0 -> actual.color = value as Color
+            1 -> actual.name = value as String?
+            2 -> actual.originX = value as Float
+            3 -> actual.originY = value as Float
+            4 -> actual.x = value as Float
+            5 -> actual.y = value as Float
+            6 -> actual.width = value as Float
+            7 -> actual.height = value as Float
+            8 -> actual.rotation = value as Float
+            9 -> actual.scaleX = value as Float
+            10 -> actual.scaleY = value as Float
+            11 -> actual.isVisible = value as Boolean
+            12 -> actual.debug = value as Boolean
+            13 -> actual.touchable = value as Touchable
+            14 -> throw UnsupportedOperationException()
+            15 -> throw UnsupportedOperationException()
+            else -> throw IndexOutOfBoundsException(prop)
+        }
     }
 
     override fun begin(actual: A) {

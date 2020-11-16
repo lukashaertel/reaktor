@@ -49,7 +49,7 @@ fun reconcile(vFrom: Any?, vTo: Any?, on: Any?): Any? {
         vTo.begin(on)
 
         // Diff all properties.
-        for (i in 0 until vTo.props()) {
+        for (i in 0 until vTo.props) {
             // Get all children.
             val vChildFrom = vFrom.getOwn(i)
             val vChildTo = vTo.getOwn(i)

@@ -10,20 +10,19 @@ import eu.metatools.kvr.gdx.utils.resumeEventMediators
 import eu.metatools.kvr.gdx.utils.suspendEventMediators
 
 // TODO: Viewport
-data class VStage(
-    // VStage
+open class VStage(
     val debugAll: Boolean,
     val children: List<VActor<*>>,
     val listeners: List<EventListener>,
     val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<Stage>?
-) : VRef<Stage>() {
+    ref: Ref<Stage>?
+) : VRef<Stage>(ref) {
     companion object {
         const val defaultDebugAll: Boolean = false
         val defaultListeners: List<EventListener> = listOf()
         val defaultCaptureListeners: List<EventListener> = listOf()
+
+        private const val ownProps = 4
     }
 
     override fun create() = Stage(ScreenViewport(OrthographicCamera()))
@@ -40,7 +39,7 @@ data class VStage(
         super.assign(actual)
     }
 
-    override fun props() = 4
+    override val props = ownProps
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> debugAll

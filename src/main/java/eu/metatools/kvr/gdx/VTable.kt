@@ -12,40 +12,53 @@ import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
-data class VTable(
+open class VTable(
     val cells: List<VCell>,
     val round: Boolean,
     val pad: ExtentValues,
     val background: Drawable?,
-
-    // VWidgetGroup
-    override val fillParent: Boolean,
-    override val layoutEnabled: Boolean,
-
-    // VGroup
-    override val children: List<VActor<*>>,
-
-    // VActor
-    override val color: Color,
-    override val name: String?,
-    override val originX: Float,
-    override val originY: Float,
-    override val x: Float,
-    override val y: Float,
-    override val width: Float,
-    override val height: Float,
-    override val rotation: Float,
-    override val scaleX: Float,
-    override val scaleY: Float,
-    override val visible: Boolean,
-    override val debug: Boolean,
-    override val touchable: Touchable,
-    override val listeners: List<EventListener>,
-    override val captureListeners: List<EventListener>,
-
-    // VRef
-    override val ref: Ref<Table>? = null
-) : VWidgetGroup<Table>() {
+    fillParent: Boolean,
+    layoutEnabled: Boolean,
+    children: List<VActor<*>>,
+    color: Color,
+    name: String?,
+    originX: Float,
+    originY: Float,
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    rotation: Float,
+    scaleX: Float,
+    scaleY: Float,
+    visible: Boolean,
+    debug: Boolean,
+    touchable: Touchable,
+    listeners: List<EventListener>,
+    captureListeners: List<EventListener>,
+    ref: Ref<Table>? = null
+) : VWidgetGroup<Table>(
+    fillParent,
+    layoutEnabled,
+    children,
+    color,
+    name,
+    originX,
+    originY,
+    x,
+    y,
+    width,
+    height,
+    rotation,
+    scaleX,
+    scaleY,
+    visible,
+    debug,
+    touchable,
+    listeners,
+    captureListeners,
+    ref
+) {
     companion object {
         val defaultRound = true
         val defaultPad = ExtentValues(
@@ -59,6 +72,8 @@ data class VTable(
         private val round = hidden<Table, Boolean>("round")
         private val columns = hidden<Table, Int>("columns")
         private val rows = hidden<Table, Int>("rows")
+
+        private const val ownProps = 4
 
         /**
          * Cells and their actors before update.
@@ -146,7 +161,7 @@ data class VTable(
         super.assign(actual)
     }
 
-    override fun props() = 23
+    override val props = ownProps + super.props
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> orderedCells
@@ -154,25 +169,7 @@ data class VTable(
         2 -> pad
         3 -> background
         4 -> fillParent
-        5 -> layoutEnabled
-        6 -> children
-        7 -> color
-        8 -> name
-        9 -> originX
-        10 -> originY
-        11 -> x
-        12 -> y
-        13 -> width
-        14 -> height
-        15 -> rotation
-        16 -> scaleX
-        17 -> scaleY
-        18 -> visible
-        19 -> debug
-        20 -> touchable
-        21 -> listeners
-        22 -> captureListeners
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getOwn(prop - ownProps)
     }
 
     override fun getActual(prop: Int, actual: Table): Any? = when (prop) {
@@ -188,27 +185,7 @@ data class VTable(
         1 -> round(actual)
         2 -> ExtentValues(actual.padTop, actual.padLeft, actual.padBottom, actual.padRight)
         3 -> actual.background
-        4 -> fillParent(actual)
-        5 -> layoutEnabled(actual)
-        6 -> wrapChildren(prop, actual)
-        7 -> actual.color
-        8 -> actual.name
-        9 -> actual.originX
-        10 -> actual.originY
-        11 -> actual.x
-        12 -> actual.y
-        13 -> actual.width
-        14 -> actual.height
-        15 -> actual.rotation
-        16 -> actual.scaleX
-        17 -> actual.scaleY
-        18 -> actual.isVisible
-        19 -> actual.debug
-        20 -> actual.touchable
-        21 -> wrapListeners(prop, actual.listeners)
-        22 -> wrapListeners(prop, actual.captureListeners)
-
-        else -> throw IndexOutOfBoundsException(prop)
+        else -> super.getActual(prop - ownProps, actual)
     }
 
     override fun updateActual(prop: Int, actual: Table, value: Any?) {
@@ -217,26 +194,7 @@ data class VTable(
             1 -> actual.setRound(value as Boolean)
             2 -> actual.pad((value as ExtentValues).top, value.left, value.bottom, value.right)
             3 -> actual.background = value as Drawable?
-            4 -> actual.setFillParent(value as Boolean)
-            5 -> actual.setLayoutEnabled(value as Boolean)
-            6 -> updateActualChildren()
-            7 -> actual.color = value as Color
-            8 -> actual.name = value as String?
-            9 -> actual.originX = value as Float
-            10 -> actual.originY = value as Float
-            11 -> actual.x = value as Float
-            12 -> actual.y = value as Float
-            13 -> actual.width = value as Float
-            14 -> actual.height = value as Float
-            15 -> actual.rotation = value as Float
-            16 -> actual.scaleX = value as Float
-            17 -> actual.scaleY = value as Float
-            18 -> actual.isVisible = value as Boolean
-            19 -> actual.debug = value as Boolean
-            20 -> actual.touchable = value as Touchable
-            21 -> throw UnsupportedOperationException()
-            22 -> throw UnsupportedOperationException()
-            else -> throw IndexOutOfBoundsException(prop)
+            else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
 

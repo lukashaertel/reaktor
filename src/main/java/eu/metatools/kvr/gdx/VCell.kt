@@ -8,7 +8,7 @@ import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
 import eu.metatools.kvr.gdx.utils.hidden
 
-data class VCell(
+open class VCell(
     val row: Int,
     val column: Int,
     val minWidth: Value,
@@ -28,8 +28,8 @@ data class VCell(
     val uniformX: Boolean,
     val uniformY: Boolean,
     val actor: VActor<*>?,
-    override val ref: Ref<Cell<Actor>>?
-) : VRef<Cell<Actor>>() {
+    ref: Ref<Cell<Actor>>?
+) : VRef<Cell<Actor>>(ref) {
     companion object {
         const val defaultRow = 0
         const val defaultColumn = 0
@@ -56,6 +56,8 @@ data class VCell(
         val cellAboveIndex = hidden<Cell<*>, Int>("cellAboveIndex")
         val column = hidden<Cell<*>, Int>("column")
         val row = hidden<Cell<*>, Int>("row")
+
+        private const val ownProps = 19
     }
 
     override fun create() = Cell<Actor>()
@@ -81,7 +83,7 @@ data class VCell(
         super.assign(actual)
     }
 
-    override fun props() = 19
+    override val props = ownProps
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> column

@@ -4,16 +4,14 @@ import eu.metatools.kvr.gdx.data.Ref
 
 /**
  * Forward reference provider.
+ * @property ref Not a prop, to push out references.
  */
-abstract class VRef<A : Any> : VBase<A>() {
+abstract class VRef<A : Any>(
+    val ref: Ref<A>?
+) : VBase<A>() {
     companion object {
         val defaultRef: Any? = null
     }
-
-    /**
-     * Not a prop, to push out references.
-     */
-    abstract val ref: Ref<A>?
 
     override fun begin(actual: A) {
     }

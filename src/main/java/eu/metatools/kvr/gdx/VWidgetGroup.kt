@@ -5,7 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extFillParent
+import eu.metatools.kvr.gdx.internals.extLayoutEnabled
 
 abstract class VWidgetGroup<A : WidgetGroup>(
     val fillParent: Boolean,
@@ -50,12 +51,7 @@ abstract class VWidgetGroup<A : WidgetGroup>(
 ) {
     companion object {
         const val defaultFillParent = false
-
         const val defaultLayoutEnabled = true
-
-        val fillParent = hidden<WidgetGroup, Boolean>("fillParent")
-
-        val layoutEnabled = hidden<WidgetGroup, Boolean>("layoutEnabled")
 
         private const val ownProps = 2
     }
@@ -76,8 +72,8 @@ abstract class VWidgetGroup<A : WidgetGroup>(
     }
 
     override fun getActual(prop: Int, actual: A): Any? = when (prop) {
-        0 -> fillParent(actual)
-        1 -> layoutEnabled(actual)
+        0 -> actual.extFillParent
+        1 -> actual.extLayoutEnabled
         else -> super.getActual(prop - ownProps, actual)
     }
 

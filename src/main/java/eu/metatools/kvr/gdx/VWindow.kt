@@ -11,7 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle
 import eu.metatools.kvr.Delegation
 import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extKeepInStage
+import eu.metatools.kvr.gdx.internals.extResizeBorder
+import eu.metatools.kvr.gdx.internals.extRound
 
 // TODO: Derive from table.
 
@@ -82,9 +84,6 @@ open class VWindow(
             Table.backgroundBottom,
             Table.backgroundRight)
 
-        private val round = hidden<Table, Boolean>("round")
-        private val resizeBorder = hidden<Window, Int>("resizeBorder")
-        private val keepInStage = hidden<Window, Int>("keepWithinStage")
 
         private const val ownProps = 10
 
@@ -158,8 +157,8 @@ open class VWindow(
         2 -> actual.isModal
         3 -> actual.isMovable
         4 -> actual.isResizable
-        5 -> resizeBorder(actual)
-        6 -> keepInStage(actual)
+        5 -> actual.extResizeBorder
+        6 -> actual.extKeepInStage
         7 -> Delegation.list(actual, prop,
             { cells.size },
             { at -> cells.get(at) },
@@ -169,7 +168,7 @@ open class VWindow(
             { value -> cells.add(value) },
             { at -> cells.removeIndex(at) }
         )
-        8 -> round(actual)
+        8 -> actual.extRound
         9 -> ExtentValues(actual.padTop, actual.padLeft, actual.padBottom, actual.padRight)
         else -> super.getActual(prop - ownProps, actual)
     }

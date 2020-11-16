@@ -9,7 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import eu.metatools.kvr.Delegation
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extAlign
+import eu.metatools.kvr.gdx.internals.extTypeToSelect
 import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
 
 open class VList<T>(
@@ -63,9 +64,6 @@ open class VList<T>(
         val defaultItems: List<*> = listOf<Any>()
         val defaultSelected: Any? = null
         val defaultAlign: Int = Align.left
-        private val align = hidden<GdxList<*>, Int>("alignment")
-
-        private val typeToSelect = hidden<GdxList<*>, Boolean>("typeToSelect")
         private const val ownProps = 5
     }
 
@@ -93,7 +91,7 @@ open class VList<T>(
 
     override fun getActual(prop: Int, actual: GdxList<T>): Any? = when (prop) {
         0 -> actual.style
-        1 -> typeToSelect(actual)
+        1 -> actual.extTypeToSelect
         2 -> Delegation.list(actual, prop,
             { items.size },
             { at -> items.get(at) },
@@ -104,7 +102,7 @@ open class VList<T>(
                 setItems(also)
             })
         3 -> actual.selected
-        4 -> align(actual)
+        4 -> actual.extAlign
         else -> super.getActual(prop - ownProps, actual)
     }
 

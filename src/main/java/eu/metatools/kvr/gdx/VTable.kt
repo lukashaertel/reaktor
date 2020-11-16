@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.kvr.Delegation
 import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.*
 
 open class VTable(
     val cells: List<VCell>,
@@ -69,9 +69,6 @@ open class VTable(
         val defaultBackground = null
         val defaultTouchable = Touchable.childrenOnly
 
-        private val round = hidden<Table, Boolean>("round")
-        private val columns = hidden<Table, Int>("columns")
-        private val rows = hidden<Table, Int>("rows")
 
         private const val ownProps = 4
 
@@ -95,10 +92,10 @@ open class VTable(
             // Set last to each highest cell in a row.
             actual.cells.groupBy { it.row }.forEach { (_, row) ->
                 val last = row.maxBy { it.column }!!
-                VCell.endRow(last, true)
+                last.extEndRow = true
                 for (other in row)
                     if (other !== last)
-                        VCell.endRow(other, false)
+                        last.extEndRow = false
             }
 
             // Highest seen row and column.
@@ -113,13 +110,13 @@ open class VTable(
 
                 // Set index above or minus one.
                 indexFromLocation[cell.column to cell.row.dec()].let {
-                    VCell.cellAboveIndex(cell, it ?: -1)
+                    cell.extCellAboveIndex = it ?: -1
                 }
             }
 
             // Set columns and rows count for table.
-            columns(actual, maxColumn.inc())
-            rows(actual, maxRow.inc())
+            actual.extColumns = maxColumn.inc()
+            actual.extRows = maxRow.inc()
         }
     }
 
@@ -182,7 +179,7 @@ open class VTable(
             { value -> cells.add(value) },
             { at -> cells.removeIndex(at) }
         )
-        1 -> round(actual)
+        1 -> actual.extRound
         2 -> ExtentValues(actual.padTop, actual.padLeft, actual.padBottom, actual.padRight)
         3 -> actual.background
         else -> super.getActual(prop - ownProps, actual)

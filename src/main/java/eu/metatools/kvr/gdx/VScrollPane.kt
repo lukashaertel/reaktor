@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.*
 
 open class VScrollPane(
     val actor: VActor<*>,
@@ -101,22 +101,6 @@ open class VScrollPane(
         const val defaultSmoothScrolling: Boolean = true
         const val defaultScrollbarsOnTop: Boolean = false
         const val defaultVariableSizeKnobs: Boolean = true
-
-        val flickScroll = hidden<ScrollPane, Boolean>("flickScroll")
-        val overscrollX = hidden<ScrollPane, Boolean>("overscrollX")
-        val overscrollY = hidden<ScrollPane, Boolean>("overscrollY")
-        val overscrollSpeedMin = hidden<ScrollPane, Float>("overscrollSpeedMin")
-        val overscrollSpeedMax = hidden<ScrollPane, Float>("overscrollSpeedMax")
-        val flingTime = hidden<ScrollPane, Float>("flingTime")
-        val clamp = hidden<ScrollPane, Boolean>("clamp")
-        val vScrollOnRight = hidden<ScrollPane, Boolean>("vScrollOnRight")
-        val hScrollOnBottom = hidden<ScrollPane, Boolean>("hScrollOnBottom")
-        val fadeAlphaSeconds = hidden<ScrollPane, Float>("fadeAlphaSeconds")
-        val fadeDelaySeconds = hidden<ScrollPane, Float>("fadeDelaySeconds")
-        val scrollBarTouch = hidden<ScrollPane, Boolean>("scrollBarTouch")
-        val smoothScrolling = hidden<ScrollPane, Boolean>("smoothScrolling")
-        val scrollbarsOnTop = hidden<ScrollPane, Boolean>("scrollbarsOnTop")
-
         private const val ownProps = 25
     }
 
@@ -178,26 +162,26 @@ open class VScrollPane(
         1 -> actual.style
         2 -> actual.scrollX
         3 -> actual.scrollY
-        4 -> flickScroll(actual)
+        4 -> actual.extFlickScroll
         5 -> actual.isScrollingDisabledX
         6 -> actual.isScrollingDisabledY
-        7 -> overscrollX(actual)
-        8 -> overscrollY(actual)
+        7 -> actual.extOverscrollX
+        8 -> actual.extOverscrollY
         9 -> actual.overscrollDistance
-        10 -> overscrollSpeedMin(actual)
-        11 -> overscrollSpeedMax(actual)
+        10 -> actual.extOverscrollSpeedMin
+        11 -> actual.extOverscrollSpeedMax
         12 -> actual.isForceScrollX
         13 -> actual.isForceScrollY
-        14 -> flingTime(actual)
-        15 -> clamp(actual)
-        16 -> vScrollOnRight(actual)
-        17 -> hScrollOnBottom(actual)
+        14 -> actual.extFlingTime
+        15 -> actual.extClamp
+        16 -> actual.extVScrollOnRight
+        17 -> actual.extHScrollOnBottom
         18 -> actual.fadeScrollBars
-        19 -> fadeAlphaSeconds(actual)
-        20 -> fadeDelaySeconds(actual)
-        21 -> scrollBarTouch(actual)
-        22 -> smoothScrolling(actual)
-        23 -> scrollbarsOnTop(actual)
+        19 -> actual.extFadeAlphaSeconds
+        20 -> actual.extFadeDelaySeconds
+        21 -> actual.extScrollBarTouch
+        22 -> actual.extSmoothScrolling
+        23 -> actual.extScrollbarsOnTop
         24 -> actual.variableSizeKnobs
         else -> super.getActual(prop - ownProps, actual)
     }
@@ -211,20 +195,20 @@ open class VScrollPane(
             4 -> actual.setFlickScroll(value as Boolean)
             5 -> actual.setScrollingDisabled(value as Boolean, actual.isScrollingDisabledY)
             6 -> actual.setScrollingDisabled(actual.isScrollingDisabledX, value as Boolean)
-            7 -> actual.setOverscroll(value as Boolean, overscrollY(actual))
-            8 -> actual.setOverscroll(overscrollX(actual), value as Boolean)
-            9 -> actual.setupOverscroll(value as Float, overscrollSpeedMin(actual), overscrollSpeedMax(actual))
-            10 -> actual.setupOverscroll(actual.overscrollDistance, value as Float, overscrollSpeedMax(actual))
-            11 -> actual.setupOverscroll(actual.overscrollDistance, overscrollSpeedMin(actual), value as Float)
+            7 -> actual.setOverscroll(value as Boolean, actual.extOverscrollY)
+            8 -> actual.setOverscroll(actual.extOverscrollY, value as Boolean)
+            9 -> actual.setupOverscroll(value as Float, actual.extOverscrollSpeedMin, actual.extOverscrollSpeedMax)
+            10 -> actual.setupOverscroll(actual.overscrollDistance, value as Float, actual.extOverscrollSpeedMax)
+            11 -> actual.setupOverscroll(actual.overscrollDistance, actual.extOverscrollSpeedMin, value as Float)
             12 -> actual.setForceScroll(value as Boolean, actual.isForceScrollY)
             13 -> actual.setForceScroll(actual.isForceScrollX, value as Boolean)
             14 -> actual.setFlingTime(value as Float)
             15 -> actual.setClamp(value as Boolean)
-            16 -> actual.setScrollBarPositions(hScrollOnBottom(actual), value as Boolean)
-            17 -> actual.setScrollBarPositions(value as Boolean, vScrollOnRight(actual))
+            16 -> actual.setScrollBarPositions(actual.extHScrollOnBottom, value as Boolean)
+            17 -> actual.setScrollBarPositions(value as Boolean, actual.extVScrollOnRight)
             18 -> actual.fadeScrollBars = value as Boolean
-            19 -> actual.setupFadeScrollBars(value as Float, fadeDelaySeconds(actual))
-            20 -> actual.setupFadeScrollBars(fadeAlphaSeconds(actual), value as Float)
+            19 -> actual.setupFadeScrollBars(value as Float, actual.extFadeDelaySeconds)
+            20 -> actual.setupFadeScrollBars(actual.extFadeAlphaSeconds, value as Float)
             21 -> actual.setScrollBarTouch(value as Boolean)
             22 -> actual.setSmoothScrolling(value as Boolean)
             23 -> actual.setScrollbarsOnTop(value as Boolean)

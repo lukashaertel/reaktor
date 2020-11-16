@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extRound
 
 open class VContainer(
     val actor: VActor<*>,
@@ -84,9 +84,6 @@ open class VContainer(
         val defaultPad: ExtentValues = ExtentValues.zero
         val defaultTouchable = Touchable.childrenOnly
 
-        private val fillX = hidden<Container<Actor>, Float>("fillX")
-        private val fillY = hidden<Container<Actor>, Float>("fillY")
-        private val round = hidden<Container<Actor>, Float>("round")
 
         private const val ownProps = 14
     }
@@ -139,11 +136,11 @@ open class VContainer(
         4 -> actual.prefHeight
         5 -> actual.maxWidth
         6 -> actual.maxHeight
-        7 -> fillX(actual)
-        8 -> fillY(actual)
+        7 -> actual.fillX
+        8 -> actual.fillY
         9 -> actual.align
         10 -> actual.background
-        11 -> round(actual)
+        11 -> actual.extRound
         12 -> actual.clip
         13 -> ExtentValues(actual.padTopValue, actual.padLeftValue, actual.padBottomValue, actual.padRightValue)
         else -> super.getActual(prop - ownProps, actual)
@@ -158,8 +155,8 @@ open class VContainer(
             4 -> actual.prefHeight(value as Value)
             5 -> actual.maxWidth(value as Value)
             6 -> actual.maxHeight(value as Value)
-            7 -> actual.fill(value as Float, fillY(actual))
-            8 -> actual.fill(fillX(actual), value as Float)
+            7 -> actual.fill(value as Float, actual.fillY)
+            8 -> actual.fill(actual.fillX, value as Float)
             9 -> actual.align(value as Int)
             10 -> actual.background(value as Drawable)
             11 -> actual.setRound(value as Boolean)

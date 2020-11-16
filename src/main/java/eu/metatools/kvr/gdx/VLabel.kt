@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.utils.Align
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extWrap
 
 open class VLabel(
     val text: String,
@@ -62,7 +62,6 @@ open class VLabel(
         const val defaultLineAlign: Int = Align.left
         const val defaultWrap: Boolean = false
 
-        private val wrap = hidden<Label, Boolean>("wrap")
 
         private const val ownProps = 7
     }
@@ -96,7 +95,7 @@ open class VLabel(
         3 -> actual.fontScaleY
         4 -> actual.labelAlign
         5 -> actual.lineAlign
-        6 -> wrap(actual)
+        6 -> actual.extWrap
         else -> super.getActual(prop - ownProps, actual)
     }
 

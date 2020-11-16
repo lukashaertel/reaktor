@@ -3,7 +3,6 @@ package eu.metatools.kvr.gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Align
 import com.maltaisn.msdfgdx.FontStyle
@@ -11,7 +10,9 @@ import com.maltaisn.msdfgdx.MsdfFont
 import com.maltaisn.msdfgdx.MsdfShader
 import com.maltaisn.msdfgdx.widget.MsdfLabel
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extShader
+import eu.metatools.kvr.gdx.internals.extSkin
+import eu.metatools.kvr.gdx.internals.extWrap
 
 open class VMsdfLabel(
     val text: CharSequence?,
@@ -69,10 +70,6 @@ open class VMsdfLabel(
         const val defaultWrap = false
         const val defaultDisabled = false
 
-
-        private val shader = hidden<MsdfLabel, MsdfShader>("shader")
-        private val skin = hidden<MsdfLabel, Skin>("skin")
-        private val wrap = hidden<Label, Boolean>("wrap")
         private const val ownProps = 8
     }
 
@@ -104,12 +101,12 @@ open class VMsdfLabel(
 
     override fun getActual(prop: Int, actual: MsdfLabel): Any? = when (prop) {
         0 -> actual.text
-        1 -> shader(actual)
-        2 -> skin(actual)["default", MsdfFont::class.java]
+        1 -> actual.extShader
+        2 -> actual.extSkin["default", MsdfFont::class.java]
         3 -> actual.fontStyle
         4 -> actual.labelAlign
         5 -> actual.lineAlign
-        6 -> wrap(actual)
+        6 -> actual.extWrap
         7 -> actual.isDisabled
         else -> super.getActual(prop - ownProps, actual)
     }
@@ -119,12 +116,12 @@ open class VMsdfLabel(
             0 -> actual.setText(value as CharSequence?)
             1 -> {
                 // Update shader in skin and update field.
-                skin(actual).add("default", value as MsdfShader)
-                shader(actual, value)
+                actual.extSkin.add("default", value as MsdfShader)
+                actual.extShader = value
             }
             2 -> {
                 // Update font in skin and reload by assigning font style.
-                skin(actual).add("default", value as MsdfFont)
+                actual.extSkin.add("default", value as MsdfFont)
                 actual.fontStyle = actual.fontStyle
             }
             3 -> actual.fontStyle = value as FontStyle

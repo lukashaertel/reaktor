@@ -7,7 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup
 import com.badlogic.gdx.utils.Align
 import eu.metatools.kvr.gdx.data.Extents
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extRound
+import eu.metatools.kvr.gdx.internals.extRowAlign
 
 open class VHorizontalGroup(
     val round: Boolean,
@@ -75,8 +76,6 @@ open class VHorizontalGroup(
         const val defaultRowAlign = 0
         val defaultTouchable = Touchable.childrenOnly
 
-        val round = hidden<HorizontalGroup, Boolean>("round")
-        val rowAlign = hidden<HorizontalGroup, Int>("rowAlign")
 
         private const val ownProps = 10
     }
@@ -115,7 +114,7 @@ open class VHorizontalGroup(
     }
 
     override fun getActual(prop: Int, actual: HorizontalGroup): Any? = when (prop) {
-        0 -> round(actual)
+        0 -> actual.extRound
         1 -> actual.reverse
         2 -> actual.space
         3 -> actual.wrapSpace
@@ -124,7 +123,7 @@ open class VHorizontalGroup(
         6 -> actual.fill
         7 -> actual.wrap
         8 -> actual.expand
-        9 -> rowAlign(actual)
+        9 -> actual.extRowAlign
         else -> super.getActual(prop - ownProps, actual)
     }
 

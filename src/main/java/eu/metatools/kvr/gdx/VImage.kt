@@ -8,7 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Scaling
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extAlign
+import eu.metatools.kvr.gdx.internals.extScaling
 
 open class VImage(
     val drawable: Drawable?,
@@ -58,8 +59,6 @@ open class VImage(
         val defaultDrawable: Drawable? = null
         val defaultScaling = Scaling.stretch
         val defaultAlign = Align.center
-        private val scaling = hidden<Image, Scaling>("scaling")
-        private val align = hidden<Image, Int>("align")
 
         private const val ownProps = 3
     }
@@ -77,8 +76,8 @@ open class VImage(
 
     override fun getActual(prop: Int, actual: Image): Any? = when (prop) {
         0 -> actual.drawable
-        1 -> scaling(actual)
-        2 -> align(actual)
+        1 -> actual.extScaling
+        2 -> actual.extAlign
         else -> super.getActual(prop - ownProps, actual)
     }
 

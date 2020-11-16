@@ -6,7 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value
 import com.badlogic.gdx.utils.Align
 import eu.metatools.kvr.gdx.data.ExtentValues
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extActor
+import eu.metatools.kvr.gdx.internals.extColumn
+import eu.metatools.kvr.gdx.internals.extRow
 
 open class VCell(
     val row: Int,
@@ -51,20 +53,14 @@ open class VCell(
         const val defaultUniformY = false
         val defaultActor: VActor<*>? = null
 
-        val actor = hidden<Cell<*>, Actor?>("actor")
-        val endRow = hidden<Cell<*>, Boolean>("endRow")
-        val cellAboveIndex = hidden<Cell<*>, Int>("cellAboveIndex")
-        val column = hidden<Cell<*>, Int>("column")
-        val row = hidden<Cell<*>, Int>("row")
-
         private const val ownProps = 19
     }
 
     override fun create() = Cell<Actor>()
 
     override fun assign(actual: Cell<Actor>) {
-        column(actual, column)
-        row(actual, row)
+        actual.extColumn = column
+        actual.extRow = row
         actual.minWidth(minWidth)
         actual.minHeight(minHeight)
         actual.prefWidth(prefWidth)
@@ -79,7 +75,7 @@ open class VCell(
         actual.colspan(colSpan)
         actual.uniform(uniformX)
         actual.uniform(uniformY)
-        actor(actual, actor?.make())
+        actual.extActor = actor?.make()
         super.assign(actual)
     }
 
@@ -109,8 +105,8 @@ open class VCell(
     }
 
     override fun getActual(prop: Int, actual: Cell<Actor>): Any? = when (prop) {
-        0 -> column(actual)
-        1 -> row(actual)
+        0 -> actual.extColumn
+        1 -> actual.extRow
         2 -> actual.minWidth
         3 -> actual.minHeight
         4 -> actual.prefWidth
@@ -127,14 +123,14 @@ open class VCell(
         15 -> actual.colspan
         16 -> actual.uniformX
         17 -> actual.uniformY
-        18 -> actor(actual)
+        18 -> actual.extActor
         else -> throw IndexOutOfBoundsException(prop)
     }
 
     override fun updateActual(prop: Int, actual: Cell<Actor>, value: Any?) {
         when (prop) {
-            0 -> column(actual, value as Int)
-            1 -> row(actual, value as Int)
+            0 -> actual.extColumn = value as Int
+            1 -> actual.extRow = value as Int
             2 -> actual.minWidth(value as Value)
             3 -> actual.minHeight(value as Value)
             4 -> actual.prefWidth(value as Value)
@@ -151,7 +147,7 @@ open class VCell(
             15 -> actual.colspan(value as Int)
             16 -> actual.uniform(value as Boolean, actual.uniformY)
             17 -> actual.uniform(actual.uniformX, value as Boolean)
-            18 -> actor(actual, value as Actor?)
+            18 -> actual.extActor = value as Actor?
             else -> throw IndexOutOfBoundsException(prop)
         }
     }

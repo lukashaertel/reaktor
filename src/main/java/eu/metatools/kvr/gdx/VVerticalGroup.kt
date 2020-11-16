@@ -7,7 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.Align
 import eu.metatools.kvr.gdx.data.Extents
 import eu.metatools.kvr.gdx.data.Ref
-import eu.metatools.kvr.gdx.utils.hidden
+import eu.metatools.kvr.gdx.internals.extColumnAlign
+import eu.metatools.kvr.gdx.internals.extRound
 
 class VVerticalGroup(
     val round: Boolean,
@@ -75,8 +76,6 @@ class VVerticalGroup(
         const val defaultColumnAlign = 0
         val defaultTouchable = Touchable.childrenOnly
 
-        val round = hidden<VerticalGroup, Boolean>("round")
-        val columnAlign = hidden<VerticalGroup, Int>("columnAlign")
         private const val ownProps = 10
     }
 
@@ -114,7 +113,7 @@ class VVerticalGroup(
     }
 
     override fun getActual(prop: Int, actual: VerticalGroup): Any? = when (prop) {
-        0 -> round(actual)
+        0 -> actual.extRound
         1 -> actual.reverse
         2 -> actual.space
         3 -> actual.wrapSpace
@@ -123,7 +122,7 @@ class VVerticalGroup(
         6 -> actual.fill
         7 -> actual.wrap
         8 -> actual.expand
-        9 -> columnAlign(actual)
+        9 -> actual.extColumnAlign
         else -> super.getActual(prop - ownProps, actual)
     }
 

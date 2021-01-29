@@ -11,26 +11,26 @@ import eu.metatools.reaktor.gdx.internals.extColumn
 import eu.metatools.reaktor.gdx.internals.extRow
 
 open class VCell(
-    val row: Int,
-    val column: Int,
-    val minWidth: Value,
-    val minHeight: Value,
-    val prefWidth: Value,
-    val prefHeight: Value,
-    val maxWidth: Value,
-    val maxHeight: Value,
-    val space: ExtentValues,
-    val pad: ExtentValues,
-    val fillX: Float,
-    val fillY: Float,
-    val align: Int,
-    val expandX: Int,
-    val expandY: Int,
-    val colSpan: Int,
-    val uniformX: Boolean,
-    val uniformY: Boolean,
-    val actor: VActor<*>?,
-    ref: Ref?
+    val row: Int = defaultRow,
+    val column: Int = defaultColumn,
+    val minWidth: Value = defaultMinWidth,
+    val minHeight: Value = defaultMinHeight,
+    val prefWidth: Value = defaultPrefWidth,
+    val prefHeight: Value = defaultPrefHeight,
+    val maxWidth: Value = defaultMaxWidth,
+    val maxHeight: Value = defaultMaxHeight,
+    val space: ExtentValues = defaultSpace,
+    val pad: ExtentValues = defaultPad,
+    val fillX: Float = defaultFillX,
+    val fillY: Float = defaultFillY,
+    val align: Int = defaultAlign,
+    val expandX: Int = defaultExpandX,
+    val expandY: Int = defaultExpandY,
+    val colSpan: Int = defaultColSpan,
+    val uniformX: Boolean = defaultUniformX,
+    val uniformY: Boolean = defaultUniformY,
+    ref: Ref? = defaultRef,
+    init: Receiver<VActor<*>> ={}
 ) : VRef<Cell<Actor>>(ref) {
     companion object {
         const val defaultRow = 0
@@ -55,6 +55,14 @@ open class VCell(
 
         private const val ownProps = 19
     }
+
+    var actor: VActor<*>? = defaultActor
+        private set
+
+    init {
+        init(ReceiveOne { actor = it })
+    }
+
 
     override fun create() = Cell<Actor>()
 
@@ -157,57 +165,4 @@ open class VCell(
         actual.table?.layout()
         super.end(actual)
     }
-}
-
-// TODO: Receiver parameter for type safe add?
-
-inline fun cell(
-    // VCell
-    row: Int = VCell.defaultRow,
-    column: Int = VCell.defaultColumn,
-    minWidth: Value = VCell.defaultMinWidth,
-    minHeight: Value = VCell.defaultMinHeight,
-    prefWidth: Value = VCell.defaultPrefWidth,
-    prefHeight: Value = VCell.defaultPrefHeight,
-    maxWidth: Value = VCell.defaultMaxWidth,
-    maxHeight: Value = VCell.defaultMaxHeight,
-    space: ExtentValues = VCell.defaultSpace,
-    pad: ExtentValues = VCell.defaultPad,
-    fillX: Float = VCell.defaultFillX,
-    fillY: Float = VCell.defaultFillY,
-    align: Int = VCell.defaultAlign,
-    expandX: Int = VCell.defaultExpandX,
-    expandY: Int = VCell.defaultExpandY,
-    colSpan: Int = VCell.defaultColSpan,
-    uniformX: Boolean = VCell.defaultUniformX,
-    uniformY: Boolean = VCell.defaultUniformY,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    // VCell
-    actor: () -> Unit
-) = constructParent<VActor<*>, VCell>(actor) {
-    VCell(
-        row,
-        column,
-        minWidth,
-        minHeight,
-        prefWidth,
-        prefHeight,
-        maxWidth,
-        maxHeight,
-        space,
-        pad,
-        fillX,
-        fillY,
-        align,
-        expandX,
-        expandY,
-        colSpan,
-        uniformX,
-        uniformY,
-        it.singleOrNull(),
-        ref
-    )
 }

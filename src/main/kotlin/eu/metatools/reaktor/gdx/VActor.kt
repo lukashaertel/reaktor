@@ -12,23 +12,23 @@ import eu.metatools.reaktor.gdx.utils.resumeEventMediators
 import eu.metatools.reaktor.gdx.utils.suspendEventMediators
 
 abstract class VActor<A : Actor>(
-    val color: Color,
-    val name: String?,
-    val originX: Float,
-    val originY: Float,
-    val x: Float,
-    val y: Float,
-    val width: Float,
-    val height: Float,
-    val rotation: Float,
-    val scaleX: Float,
-    val scaleY: Float,
-    val visible: Boolean,
-    val debug: Boolean,
-    val touchable: Touchable,
-    val listeners: List<EventListener>,
-    val captureListeners: List<EventListener>,
-    ref: Ref?
+    val color: Color = defaultColor,
+    val name: String? = defaultName,
+    val originX: Float = defaultOriginX,
+    val originY: Float = defaultOriginY,
+    val x: Float = defaultX,
+    val y: Float = defaultY,
+    val width: Float = defaultWidth,
+    val height: Float = defaultHeight,
+    val rotation: Float = defaultRotation,
+    val scaleX: Float = defaultScaleX,
+    val scaleY: Float = defaultScaleY,
+    val visible: Boolean = defaultVisible,
+    val debug: Boolean = defaultDebug,
+    val touchable: Touchable = defaultTouchable,
+    val listeners: List<EventListener> = defaultListeners,
+    val captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef
 ) : VRef<A>(ref) {
     companion object {
         val defaultColor: Color = Color.WHITE

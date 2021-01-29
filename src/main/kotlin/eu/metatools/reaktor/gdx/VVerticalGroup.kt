@@ -11,40 +11,39 @@ import eu.metatools.reaktor.gdx.internals.extColumnAlign
 import eu.metatools.reaktor.gdx.internals.extRound
 
 class VVerticalGroup(
-    val round: Boolean,
-    val reverse: Boolean,
-    val space: Float,
-    val wrapSpace: Float,
-    val pad: Extents,
-    val align: Int,
-    val fill: Float,
-    val wrap: Boolean,
-    val expand: Boolean,
-    val columnAlign: Int,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    children: List<VActor<*>>,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref? = null
+    val round: Boolean = defaultRound,
+    val reverse: Boolean = defaultReverse,
+    val space: Float = defaultSpace,
+    val wrapSpace: Float = defaultWrapSpace,
+    val pad: Extents = defaultPad,
+    val align: Int = defaultAlign,
+    val fill: Float = defaultFill,
+    val wrap: Boolean = defaultWrap,
+    val expand: Boolean = defaultExpand,
+    val columnAlign: Int = defaultColumnAlign,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: Receiver<VActor<*>> = {}
 ) : VWidgetGroup<VerticalGroup>(
     fillParent,
     layoutEnabled,
-    children,
     color,
     name,
     originX,
@@ -61,7 +60,8 @@ class VVerticalGroup(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    init
 ) {
     companion object {
         const val defaultRound = true
@@ -141,79 +141,4 @@ class VVerticalGroup(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
-}
-
-inline fun verticalGroup(
-    // VVerticalGroup.
-    round: Boolean = VVerticalGroup.defaultRound,
-    reverse: Boolean = VVerticalGroup.defaultReverse,
-    space: Float = VVerticalGroup.defaultSpace,
-    wrapSpace: Float = VVerticalGroup.defaultWrapSpace,
-    pad: Extents = VVerticalGroup.defaultPad,
-    align: Int = VVerticalGroup.defaultAlign,
-    fill: Float = VVerticalGroup.defaultFill,
-    wrap: Boolean = VVerticalGroup.defaultWrap,
-    expand: Boolean = VVerticalGroup.defaultExpand,
-    columnAlign: Int = VVerticalGroup.defaultColumnAlign,
-
-    // VWidgetGroup
-    fillParent: Boolean = VWidgetGroup.defaultFillParent,
-    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
-
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VVerticalGroup.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    // VGroup
-    children: () -> Unit
-) = constructParent<VActor<*>, VVerticalGroup>(children) {
-    VVerticalGroup(
-        round,
-        reverse,
-        space,
-        wrapSpace,
-        pad,
-        align,
-        fill,
-        wrap,
-        expand,
-        columnAlign,
-        fillParent,
-        layoutEnabled,
-        it,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

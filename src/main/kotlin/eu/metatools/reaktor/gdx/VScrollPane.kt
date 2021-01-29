@@ -10,55 +10,53 @@ import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.*
 
 open class VScrollPane(
-    val actor: VActor<*>,
     val style: ScrollPaneStyle,
-    val scrollX: Float,
-    val scrollY: Float,
-    val flickScroll: Boolean,
-    val disableX: Boolean,
-    val disableY: Boolean,
-    val overscrollX: Boolean,
-    val overscrollY: Boolean,
-    val overscrollDistance: Float,
-    val overscrollSpeedMin: Float,
-    val overscrollSpeedMax: Float,
-    val forceScrollX: Boolean,
-    val forceScrollY: Boolean,
-    val flingTime: Float,
-    val clamp: Boolean,
-    val vScrollOnRight: Boolean,
-    val hScrollOnBottom: Boolean,
-    val fadeScrollBars: Boolean,
-    val fadeAlphaSeconds: Float,
-    val fadeDelaySeconds: Float,
-    val scrollBarTouch: Boolean,
-    val smoothScrolling: Boolean,
-    val scrollbarsOnTop: Boolean,
-    val variableSizeKnobs: Boolean,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    children: List<VActor<*>>,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref?
+    val scrollX: Float = defaultScrollX,
+    val scrollY: Float = defaultScrollY,
+    val flickScroll: Boolean = defaultFlickScroll,
+    val disableX: Boolean = defaultDisableX,
+    val disableY: Boolean = defaultDisableY,
+    val overscrollX: Boolean = defaultOverscrollX,
+    val overscrollY: Boolean = defaultOverscrollY,
+    val overscrollDistance: Float = defaultOverscrollDistance,
+    val overscrollSpeedMin: Float = defaultOverscrollSpeedMin,
+    val overscrollSpeedMax: Float = defaultOverscrollSpeedMax,
+    val forceScrollX: Boolean = defaultForceScrollX,
+    val forceScrollY: Boolean = defaultForceScrollY,
+    val flingTime: Float = defaultFlingTime,
+    val clamp: Boolean = defaultClamp,
+    val vScrollOnRight: Boolean = defaultVScrollOnRight,
+    val hScrollOnBottom: Boolean = defaultHScrollOnBottom,
+    val fadeScrollBars: Boolean = defaultFadeScrollBars,
+    val fadeAlphaSeconds: Float = defaultFadeAlphaSeconds,
+    val fadeDelaySeconds: Float = defaultFadeDelaySeconds,
+    val scrollBarTouch: Boolean = defaultScrollBarTouch,
+    val smoothScrolling: Boolean = defaultSmoothScrolling,
+    val scrollbarsOnTop: Boolean = defaultScrollbarsOnTop,
+    val variableSizeKnobs: Boolean = defaultVariableSizeKnobs,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: ReceiverActorChildren = {}
 ) : VWidgetGroup<ScrollPane>(
     fillParent,
     layoutEnabled,
-    children,
     color,
     name,
     originX,
@@ -75,7 +73,8 @@ open class VScrollPane(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    init.toChildren()
 ) {
     companion object {
         const val defaultScrollX: Float = 0f
@@ -104,7 +103,14 @@ open class VScrollPane(
         private const val ownProps = 25
     }
 
-    override fun create() = ScrollPane(actor.make(), style)
+    var actor: VActor<*>? = VCell.defaultActor
+        private set
+
+    init {
+        init.toActor()(ReceiveOne { actor = it })
+    }
+
+    override fun create() = ScrollPane(actor?.make(), style)
 
     override fun assign(actual: ScrollPane) {
         actual.scrollX = scrollX
@@ -216,109 +222,4 @@ open class VScrollPane(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
-}
-
-inline fun scrollPane(
-    style: ScrollPaneStyle,
-    scrollX: Float = VScrollPane.defaultScrollX,
-    scrollY: Float = VScrollPane.defaultScrollY,
-    flickScroll: Boolean = VScrollPane.defaultFlickScroll,
-    disableX: Boolean = VScrollPane.defaultDisableX,
-    disableY: Boolean = VScrollPane.defaultDisableY,
-    overscrollX: Boolean = VScrollPane.defaultOverscrollX,
-    overscrollY: Boolean = VScrollPane.defaultOverscrollY,
-    overscrollDistance: Float = VScrollPane.defaultOverscrollDistance,
-    overscrollSpeedMin: Float = VScrollPane.defaultOverscrollSpeedMin,
-    overscrollSpeedMax: Float = VScrollPane.defaultOverscrollSpeedMax,
-    forceScrollX: Boolean = VScrollPane.defaultForceScrollX,
-    forceScrollY: Boolean = VScrollPane.defaultForceScrollY,
-    flingTime: Float = VScrollPane.defaultFlingTime,
-    clamp: Boolean = VScrollPane.defaultClamp,
-    vScrollOnRight: Boolean = VScrollPane.defaultVScrollOnRight,
-    hScrollOnBottom: Boolean = VScrollPane.defaultHScrollOnBottom,
-    fadeScrollBars: Boolean = VScrollPane.defaultFadeScrollBars,
-    fadeAlphaSeconds: Float = VScrollPane.defaultFadeAlphaSeconds,
-    fadeDelaySeconds: Float = VScrollPane.defaultFadeDelaySeconds,
-    scrollBarTouch: Boolean = VScrollPane.defaultScrollBarTouch,
-    smoothScrolling: Boolean = VScrollPane.defaultSmoothScrolling,
-    scrollbarsOnTop: Boolean = VScrollPane.defaultScrollbarsOnTop,
-    variableSizeKnobs: Boolean = VScrollPane.defaultVariableSizeKnobs,
-
-    // VWidgetGroup
-    fillParent: Boolean = VWidgetGroup.defaultFillParent,
-    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
-
-    // VGroup
-    children: List<VActor<*>> = VGroup.defaultChildren,
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VActor.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    // VScrollPane
-    actor: () -> Unit
-) = constructParent<VActor<*>, VScrollPane>(actor) {
-    VScrollPane(
-        it.single(),
-        style,
-        scrollX,
-        scrollY,
-        flickScroll,
-        disableX,
-        disableY,
-        overscrollX,
-        overscrollY,
-        overscrollDistance,
-        overscrollSpeedMin,
-        overscrollSpeedMax,
-        forceScrollX,
-        forceScrollY,
-        flingTime,
-        clamp,
-        vScrollOnRight,
-        hScrollOnBottom,
-        fadeScrollBars,
-        fadeAlphaSeconds,
-        fadeDelaySeconds,
-        scrollBarTouch,
-        smoothScrolling,
-        scrollbarsOnTop,
-        variableSizeKnobs,
-        fillParent,
-        layoutEnabled,
-        children,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

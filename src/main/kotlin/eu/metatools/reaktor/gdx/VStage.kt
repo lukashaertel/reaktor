@@ -11,11 +11,11 @@ import eu.metatools.reaktor.gdx.utils.suspendEventMediators
 
 // TODO: Viewport
 open class VStage(
-    val debugAll: Boolean,
-    val children: List<VActor<*>>,
-    val listeners: List<EventListener>,
-    val captureListeners: List<EventListener>,
-    ref: Ref?
+    val debugAll: Boolean = defaultDebugAll,
+    val listeners: List<EventListener> = defaultListeners,
+    val captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: Receiver<VActor<*>> = {}
 ) : VRef<Stage>(ref) {
     companion object {
         const val defaultDebugAll: Boolean = false
@@ -23,6 +23,13 @@ open class VStage(
         val defaultCaptureListeners: List<EventListener> = listOf()
 
         private const val ownProps = 4
+    }
+
+    val children: List<VActor<*>> = mutableListOf()
+
+    init {
+        children as MutableList
+        init(ReceiveMany { children.add(it) })
     }
 
     override fun create() = Stage(ScreenViewport(OrthographicCamera()))
@@ -76,24 +83,4 @@ open class VStage(
         actual.root.listeners.resumeEventMediators()
         super.end(actual)
     }
-}
-
-fun stage(
-    // VStage
-    debugAll: Boolean = VStage.defaultDebugAll,
-    listeners: List<EventListener> = VStage.defaultListeners,
-    captureListeners: List<EventListener> = VStage.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    children: () -> Unit
-) = constructParent<VActor<*>, VStage>(children) {
-    VStage(
-        debugAll,
-        it,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

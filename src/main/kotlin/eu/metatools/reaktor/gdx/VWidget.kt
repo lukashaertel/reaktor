@@ -9,25 +9,25 @@ import eu.metatools.reaktor.gdx.internals.extFillParent
 import eu.metatools.reaktor.gdx.internals.extLayoutEnabled
 
 abstract class VWidget<A : Widget>(
-    val fillParent: Boolean,
-    val layoutEnabled: Boolean,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref?
+    val fillParent: Boolean = defaultFillParent,
+    val layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef
 ) : VActor<A>(
     color,
     name,
@@ -49,7 +49,6 @@ abstract class VWidget<A : Widget>(
 ) {
     companion object {
         const val defaultFillParent = false
-
         const val defaultLayoutEnabled = true
 
         private const val ownProps = 2

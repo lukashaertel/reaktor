@@ -13,34 +13,32 @@ import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.*
 
 open class VTable(
-    val cells: List<VCell>,
-    val round: Boolean,
-    val pad: ExtentValues,
-    val background: Drawable?,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    children: List<VActor<*>>,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref? = null
+    val round: Boolean = defaultRound,
+    val pad: ExtentValues = defaultPad,
+    val background: Drawable? = defaultBackground,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: ReceiverCellsChildren = {}
 ) : VWidgetGroup<Table>(
     fillParent,
     layoutEnabled,
-    children,
     color,
     name,
     originX,
@@ -57,7 +55,8 @@ open class VTable(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    init.toChildren()
 ) {
     companion object {
         val defaultRound = true
@@ -78,6 +77,14 @@ open class VTable(
         private val beforeRecon = ThreadLocal.withInitial { HashSet<Pair<Cell<Actor>, Actor?>>() }
 
     }
+
+    val cells: List<VCell> = mutableListOf()
+
+    init {
+        cells as MutableList
+        init.toCells()(ReceiveMany { cells.add(it) })
+    }
+
 
     private val correctedCells = run {
         // Get width.
@@ -229,69 +236,4 @@ open class VTable(
         actual.extColumns = maxColumn.inc()
         actual.extRows = maxRow.inc()
     }
-}
-
-inline fun table(
-    // VTable
-    round: Boolean = VTable.defaultRound,
-    pad: ExtentValues = VTable.defaultPad,
-    background: Drawable? = VTable.defaultBackground,
-
-    // VWidgetGroup
-    fillParent: Boolean = VWidgetGroup.defaultFillParent,
-    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
-
-    // VGroup
-    children: List<VActor<*>> = VGroup.defaultChildren,
-
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VTable.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    // VTable
-    cells: () -> Unit
-) = constructParent<VCell, VTable>(cells) {
-    VTable(
-        it,
-        round,
-        pad,
-        background,
-        fillParent,
-        layoutEnabled,
-        children,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

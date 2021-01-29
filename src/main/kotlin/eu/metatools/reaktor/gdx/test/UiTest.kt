@@ -36,7 +36,7 @@ import eu.metatools.reaktor.gdx.utils.px
 import eu.metatools.reaktor.reconcileWrapper
 import kotlin.properties.Delegates
 
-data class State(val windowVisible: Boolean, val variant: Boolean)
+data class State(val windowVisible: Boolean, val variant: Boolean, val resa: Int = 0)
 
 class UISimpleTest : InputAdapter(), ApplicationListener {
     private lateinit var stage: Stage
@@ -80,10 +80,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
      * Yield component with the given icon (referring to one of the icons in the icons atlas), the text and the color.
      */
     val yield = component<String, String, Color, VHorizontalGroup> { icon, text, color ->
-        horizontalGroup(align = Align.center) {
-            image(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
+        VHorizontalGroup(align = Align.center) {
+            +VImage(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
 
-            msdfLabel(
+            +VMsdfLabel(
                 text = text, shader = msdfShader, font = msdfFont,
                 fontStyle = FontStyle(fontWhite)
                     .setColor(color)
@@ -98,8 +98,8 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
      * Resource, layout amount, then icon. If amount is negative, red is used as the color, otherwise green.
      */
     val res = component { icon: String, amount: Int ->
-        horizontalGroup(align = Align.center) {
-            msdfLabel(
+        VHorizontalGroup(align = Align.center) {
+            +VMsdfLabel(
                 text = "$amount", shader = msdfShader, font = msdfFont,
                 fontStyle = FontStyle(fontWhite)
                     .setColor(if (amount < 0) "#e62039".hex else "#65d861".hex)
@@ -108,7 +108,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     .setShadowOffset(vectorUnit)
             )
 
-            image(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
+            +VImage(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
         }
     }
 
@@ -116,61 +116,28 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
      * State rendering function. Turns the state into the stage Virtual DOM.
      */
     val render = component { state: State ->
-        stage {
-            table(fillParent = true) {
-                // Cell expanding as the top screen row.
-                cell(row = 0, expandX = 1, fillX = 1f, fillY = 1f) {
-                    container(background = white.tint("#00000080".hex), fillX = 1f) {
-                        horizontalGroup(pad = Extents(8f, 2f), space = 16f) {
-                            yield("research", "+213", "#41add3".hex)
-                            yield("gold", "618 (+62)", "#ebe932".hex)
-                            yield("trade_white", "4 / 5", "#fcfddd".hex)
-                            yield("happiness_1", "2", "#65d861".hex)
-                            yield("golden_age", "328/1050", "#ffffff".hex)
-                            yield("culture", "493/830 (+26)", "#d423d6".hex)
-                            yield("arrow_right", "+2", "#f7fadf".hex)
-                            yield("peace", "104 (+21)", "#f7fadf".hex)
-
-                            res("res_iron", 6)
-                            res("res_horse", 16)
-                            res("res_coal", -1)
-                        }
-                    }
-                }
-
-                // Cell serving as the over-screen area. Empty.
-                cell(row = 1, expandY = 1) {
-                }
-
-                // Debug row.
-                cell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
-                    container(background = white.tint("#00000040".hex), fillX = 1f) {
-                        horizontalGroup(pad = Extents(8f, 2f)) {
-                            msdfLabel(
-                                text = state.toString(),
-                                shader = msdfShader, font = msdfFont,
-                                fontStyle = FontStyle(fontWhite)
-                            )
-                        }
-                    }
-                }
+        VStage {
+            +VTable(fillParent = true) {
+                +yieldsAndResRow(state)
+                +filler()
+                +debugRow(state)
             }
 
             // Add window if it is visible.
             if (state.windowVisible) {
                 val sva = eventListener<InputEvent> {
                     if (it.type == InputEvent.Type.touchDown) {
-                        this.state = state.copy(variant = false)
+                        this@UISimpleTest.state = state.copy(variant = false, resa = state.resa.inc())
                         true
                     } else false
                 }
                 val svb = eventListener<InputEvent> {
                     if (it.type == InputEvent.Type.touchDown) {
-                        this.state = state.copy(variant = true)
+                        this@UISimpleTest.state = state.copy(variant = true, resa = state.resa.inc())
                         true
                     } else false
                 }
-                window(
+                +VWindow(
                     title = "Title",
                     movable = true,
                     resizable = true,
@@ -181,14 +148,54 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     pad = ExtentValues(40f.px, 10f.px, 10f.px, 10f.px),
                     width = 400f,
                     height = 400f) {
-                    cell(row = 0, column = 0, expandX = 1, expandY = 1) {
-                        msdfLabel("Set variant 1", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
+                    +VCell(row = 0, column = 0, expandX = 1, expandY = 1) {
+                        +VMsdfLabel("Set variant 1", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
                             listeners = listOf(sva))
                     }
-                    cell(row = 0, column = 1, expandX = 1, expandY = 1) {
-                        msdfLabel("Set variant 2", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
+                    +VCell(row = 0, column = 1, expandX = 1, expandY = 1) {
+                        +VMsdfLabel("Set variant 2", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
                             listeners = listOf(svb))
                     }
+                }
+            }
+        }
+    }
+
+    private val debugRow = component { state: State ->
+        VCell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
+            +VContainer(background = white.tint("#00000040".hex), fillX = 1f) {
+                +VHorizontalGroup(pad = Extents(8f, 2f)) {
+                    +VMsdfLabel(
+                        text = state.toString(),
+                        shader = msdfShader, font = msdfFont,
+                        fontStyle = FontStyle(fontWhite)
+                    )
+                }
+            }
+        }
+    }
+
+    private val filler = component { ->
+        VCell(row = 1, expandY = 1)
+    }
+
+
+    private val yieldsAndResRow = { state: State ->
+        VCell(row = 0, expandX = 1, fillX = 1f, fillY = 1f) {
+            +VContainer(background = white.tint("#00000080".hex), fillX = 1f) {
+                +VHorizontalGroup(pad = Extents(8f, 2f), space = 16f) {
+                    +yield("research", "+213", "#41add3".hex)
+                    +yield("gold", "618 (+62)", "#ebe932".hex)
+                    +yield("trade_white", "4 / 5", "#fcfddd".hex)
+                    +yield("happiness_1", state.resa.toString(), "#65d861".hex)
+                    +yield("golden_age", "328/1050", "#ffffff".hex)
+                    +yield("culture", "493/830 (+26)", "#d423d6".hex)
+                    +yield("arrow_right", "+2", "#f7fadf".hex)
+                    +yield("peace", "104 (+21)", "#f7fadf".hex)
+
+                    +res("res_iron", 6)
+                    +res("res_horse", 16)
+                    +res("res_coal", -1)
                 }
             }
         }

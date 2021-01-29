@@ -12,44 +12,42 @@ import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extRound
 
 open class VContainer(
-    val actor: VActor<*>,
-    val minWidth: Value,
-    val minHeight: Value,
-    val prefWidth: Value,
-    val prefHeight: Value,
-    val maxWidth: Value,
-    val maxHeight: Value,
-    val fillX: Float,
-    val fillY: Float,
-    val align: Int,
-    val background: Drawable?,
-    val round: Boolean,
-    val clip: Boolean,
-    val pad: ExtentValues,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    children: List<VActor<*>>,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref? = null
+    val minWidth: Value = defaultMinWidth,
+    val minHeight: Value = defaultMinHeight,
+    val prefWidth: Value = defaultPrefWidth,
+    val prefHeight: Value = defaultPrefHeight,
+    val maxWidth: Value = defaultMaxWidth,
+    val maxHeight: Value = defaultMaxHeight,
+    val fillX: Float = defaultFillX,
+    val fillY: Float = defaultFillY,
+    val align: Int = defaultAlign,
+    val background: Drawable? = defaultBackground,
+    val round: Boolean = defaultRound,
+    val clip: Boolean = defaultClip,
+    val pad: ExtentValues = defaultPad,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: ReceiverActorChildren = {}
 ) : VWidgetGroup<Container<Actor>>(
     fillParent,
     layoutEnabled,
-    children,
     color,
     name,
     originX,
@@ -66,7 +64,8 @@ open class VContainer(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    init.toChildren()
 ) {
     companion object {
         val defaultMinWidth: Value = Value.minWidth
@@ -88,6 +87,13 @@ open class VContainer(
         private const val ownProps = 14
     }
 
+    var actor: VActor<*>? = VCell.defaultActor
+        private set
+
+    init {
+        init.toActor()(ReceiveOne { actor = it })
+    }
+
     override fun create() = Container<Actor>()
 
     override fun assign(actual: Container<Actor>) {
@@ -103,7 +109,7 @@ open class VContainer(
         actual.setRound(round)
         actual.clip = clip
         actual.pad(pad.top, pad.left, pad.bottom, pad.right)
-        actual.actor = actor.make()
+        actual.actor = actor?.make()
 
         super.assign(actual)
     }
@@ -165,89 +171,4 @@ open class VContainer(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
-}
-
-inline fun container(
-    // VContainer
-    minWidth: Value = VContainer.defaultMinWidth,
-    minHeight: Value = VContainer.defaultMinHeight,
-    prefWidth: Value = VContainer.defaultPrefWidth,
-    prefHeight: Value = VContainer.defaultPrefHeight,
-    maxWidth: Value = VContainer.defaultMaxWidth,
-    maxHeight: Value = VContainer.defaultMaxHeight,
-    fillX: Float = VContainer.defaultFillX,
-    fillY: Float = VContainer.defaultFillY,
-    align: Int = VContainer.defaultAlign,
-    background: Drawable? = VContainer.defaultBackground,
-    round: Boolean = VContainer.defaultRound,
-    clip: Boolean = VContainer.defaultClip,
-    pad: ExtentValues = VContainer.defaultPad,
-
-    // VWidgetGroup
-    fillParent: Boolean = VWidgetGroup.defaultFillParent,
-    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
-
-    // VGroup
-    children: List<VActor<*>> = VGroup.defaultChildren,
-
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VContainer.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef,
-
-    // VGroup
-    actor: () -> Unit
-) = constructParent<VActor<*>, VContainer>(actor) {
-    VContainer(
-        it.single(),
-        minWidth,
-        minHeight,
-        prefWidth,
-        prefHeight,
-        maxWidth,
-        maxHeight,
-        fillX,
-        fillY,
-        align,
-        background,
-        round,
-        clip,
-        pad,
-        fillParent,
-        layoutEnabled,
-        children,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

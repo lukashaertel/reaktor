@@ -15,29 +15,29 @@ import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
 
 open class VList<T>(
     val style: ListStyle,
-    val typeToSelect: Boolean,
-    val items: List<T>,
-    val selected: T?,
-    val align: Int,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref? = null
+    val typeToSelect: Boolean = defaultTypeToSelect,
+    val selected: T? = defaultSelected as T?,
+    val align: Int = defaultAlign,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: Receiver<T> = {}
 ) : VWidget<GdxList<T>>(
     fillParent,
     layoutEnabled,
@@ -61,11 +61,19 @@ open class VList<T>(
 ) {
     companion object {
         val defaultTypeToSelect: Boolean = false
-        val defaultItems: List<*> = listOf<Any>()
         val defaultSelected: Any? = null
         val defaultAlign: Int = Align.left
         private const val ownProps = 5
     }
+
+
+    val items: List<T> = mutableListOf()
+
+    init {
+        items as MutableList
+        init(ReceiveMany { items.add(it) })
+    }
+
 
     override fun create() = GdxList<T>(style)
 
@@ -117,68 +125,6 @@ open class VList<T>(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
-}
-
-fun <T> list(
-    style: ListStyle,
-    typeToSelect: Boolean = VList.defaultTypeToSelect,
-    @Suppress("unchecked_cast")
-    items: List<T> = VList.defaultItems as List<T>,
-    @Suppress("unchecked_cast")
-    selected: T? = VList.defaultSelected as T?,
-    align: Int = VList.defaultAlign,
-
-    // VWidget
-    fillParent: Boolean = VWidget.defaultFillParent,
-    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
-
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VActor.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef
-) = constructTerminal {
-    VList(
-        style,
-        typeToSelect,
-        items,
-        selected,
-        align,
-        fillParent,
-        layoutEnabled,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }
 
 /**

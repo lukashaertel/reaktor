@@ -9,24 +9,24 @@ import eu.metatools.reaktor.Delegation
 import eu.metatools.reaktor.gdx.data.Ref
 
 abstract class VGroup<A : Group>(
-    val children: List<VActor<*>>,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref?
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef,
+    init: Receiver<VActor<*>> = {}
 ) : VActor<A>(color,
     name,
     originX,
@@ -48,6 +48,13 @@ abstract class VGroup<A : Group>(
         val defaultChildren = listOf<VActor<*>>()
 
         private const val ownProps = 1
+    }
+
+    val children: List<VActor<*>> = mutableListOf()
+
+    init {
+        children as MutableList
+        init(ReceiveMany { children.add(it) })
     }
 
     override fun assign(actual: A) {

@@ -12,30 +12,30 @@ import eu.metatools.reaktor.gdx.internals.extWrap
 open class VLabel(
     val text: String,
     val style: LabelStyle,
-    val fontScaleX: Float,
-    val fontScaleY: Float,
-    val labelAlign: Int,
-    val lineAlign: Int,
-    val wrap: Boolean,
-    fillParent: Boolean,
-    layoutEnabled: Boolean,
-    color: Color,
-    name: String?,
-    originX: Float,
-    originY: Float,
-    x: Float,
-    y: Float,
-    width: Float,
-    height: Float,
-    rotation: Float,
-    scaleX: Float,
-    scaleY: Float,
-    visible: Boolean,
-    debug: Boolean,
-    touchable: Touchable,
-    listeners: List<EventListener>,
-    captureListeners: List<EventListener>,
-    ref: Ref?
+    val fontScaleX: Float = defaultFontScaleX,
+    val fontScaleY: Float = defaultFontScaleY,
+    val labelAlign: Int = defaultLabelAlign,
+    val lineAlign: Int = defaultLineAlign,
+    val wrap: Boolean = defaultWrap,
+    fillParent: Boolean = defaultFillParent,
+    layoutEnabled: Boolean = defaultLayoutEnabled,
+    color: Color = defaultColor,
+    name: String? = defaultName,
+    originX: Float = defaultOriginX,
+    originY: Float = defaultOriginY,
+    x: Float = defaultX,
+    y: Float = defaultY,
+    width: Float = defaultWidth,
+    height: Float = defaultHeight,
+    rotation: Float = defaultRotation,
+    scaleX: Float = defaultScaleX,
+    scaleY: Float = defaultScaleY,
+    visible: Boolean = defaultVisible,
+    debug: Boolean = defaultDebug,
+    touchable: Touchable = defaultTouchable,
+    listeners: List<EventListener> = defaultListeners,
+    captureListeners: List<EventListener> = defaultCaptureListeners,
+    ref: Ref? = defaultRef
 ) : VWidget<Label>(fillParent,
     layoutEnabled,
     color,
@@ -61,7 +61,6 @@ open class VLabel(
         const val defaultLabelAlign: Int = Align.left
         const val defaultLineAlign: Int = Align.left
         const val defaultWrap: Boolean = false
-
 
         private const val ownProps = 7
     }
@@ -111,68 +110,4 @@ open class VLabel(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
-}
-
-fun label(
-    text: String,
-    style: LabelStyle,
-    fontScaleX: Float = VLabel.defaultFontScaleX,
-    fontScaleY: Float = VLabel.defaultFontScaleY,
-    labelAlign: Int = VLabel.defaultLabelAlign,
-    lineAlign: Int = VLabel.defaultLineAlign,
-    wrap: Boolean = VLabel.defaultWrap,
-
-    // VWidget
-    fillParent: Boolean = VWidget.defaultFillParent,
-    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
-
-    // VActor
-    color: Color = VActor.defaultColor,
-    name: String? = VActor.defaultName,
-    originX: Float = VActor.defaultOriginX,
-    originY: Float = VActor.defaultOriginY,
-    x: Float = VActor.defaultX,
-    y: Float = VActor.defaultY,
-    width: Float = VActor.defaultWidth,
-    height: Float = VActor.defaultHeight,
-    rotation: Float = VActor.defaultRotation,
-    scaleX: Float = VActor.defaultScaleX,
-    scaleY: Float = VActor.defaultScaleY,
-    visible: Boolean = VActor.defaultVisible,
-    debug: Boolean = VActor.defaultDebug,
-    touchable: Touchable = VActor.defaultTouchable,
-    listeners: List<EventListener> = VActor.defaultListeners,
-    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
-
-    // VRef
-    ref: Ref? = VRef.defaultRef
-) = constructTerminal {
-    VLabel(
-        text,
-        style,
-        fontScaleX,
-        fontScaleY,
-        labelAlign,
-        lineAlign,
-        wrap,
-        fillParent,
-        layoutEnabled,
-        color,
-        name,
-        originX,
-        originY,
-        x,
-        y,
-        width,
-        height,
-        rotation,
-        scaleX,
-        scaleY,
-        visible,
-        debug,
-        touchable,
-        listeners,
-        captureListeners,
-        ref
-    )
 }

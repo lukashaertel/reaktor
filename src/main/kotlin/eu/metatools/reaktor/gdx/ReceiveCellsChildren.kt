@@ -1,9 +1,6 @@
 package eu.metatools.reaktor.gdx
 
-abstract class ReceiveCellsChildren : Receive<VCell>() {
-    override fun receive(item: VCell) =
-        cells { this.receive(item) }
-
+abstract class ReceiveCellsChildren {
     abstract fun cells(init: Receiver<VCell>)
 
     abstract fun children(init: Receiver<VActor<*>>)

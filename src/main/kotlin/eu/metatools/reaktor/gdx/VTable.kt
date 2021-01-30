@@ -85,7 +85,6 @@ open class VTable(
         init.toCells()(ReceiveMany { cells.add(it) })
     }
 
-
     private val correctedCells = run {
         // Get width.
         val max = cells.asSequence().map { it.column + it.colSpan }.max()?.inc()

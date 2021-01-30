@@ -1,9 +1,6 @@
 package eu.metatools.reaktor.gdx
 
-abstract class ReceiveActorChildren : Receive<VActor<*>>() {
-    override fun receive(item: VActor<*>) =
-        actor { this.receive(item) }
-
+abstract class ReceiveActorChildren {
     abstract fun actor(init: Receiver<VActor<*>>)
 
     abstract fun children(init: Receiver<VActor<*>>)

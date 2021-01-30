@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
 
 open class VList<T>(
     val style: ListStyle,
+    val items: List<T>,
     val typeToSelect: Boolean = defaultTypeToSelect,
     val selected: T? = defaultSelected as T?,
     val align: Int = defaultAlign,
@@ -37,7 +38,6 @@ open class VList<T>(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: Ref? = defaultRef,
-    init: Receiver<T> = {}
 ) : VWidget<GdxList<T>>(
     fillParent,
     layoutEnabled,
@@ -66,15 +66,6 @@ open class VList<T>(
         private const val ownProps = 5
     }
 
-
-    val items: List<T> = mutableListOf()
-
-    init {
-        items as MutableList
-        init(ReceiveMany { items.add(it) })
-    }
-
-
     override fun create() = GdxList<T>(style)
 
     override fun assign(actual: GdxList<T>) {
@@ -90,8 +81,8 @@ open class VList<T>(
 
     override fun getOwn(prop: Int): Any? = when (prop) {
         0 -> style
-        1 -> typeToSelect
-        2 -> items
+        1 -> items
+        2 -> typeToSelect
         3 -> selected
         4 -> align
         else -> super.getOwn(prop - ownProps)
@@ -99,8 +90,7 @@ open class VList<T>(
 
     override fun getActual(prop: Int, actual: GdxList<T>): Any? = when (prop) {
         0 -> actual.style
-        1 -> actual.extTypeToSelect
-        2 -> Delegation.list(actual, prop,
+        1 -> Delegation.list(actual, prop,
             { items.size },
             { at -> items.get(at) },
             { at, value: T -> setItems(items.also { it[at] = value }) },
@@ -109,6 +99,7 @@ open class VList<T>(
                 val also = items.also { it.removeIndex(at) }
                 setItems(also)
             })
+        2 -> actual.extTypeToSelect
         3 -> actual.selected
         4 -> actual.extAlign
         else -> super.getActual(prop - ownProps, actual)
@@ -118,8 +109,8 @@ open class VList<T>(
         @Suppress("unchecked_cast")
         when (prop) {
             0 -> actual.style = value as ListStyle
-            1 -> actual.setTypeToSelect(value as Boolean)
-            2 -> throw UnsupportedOperationException()
+            1 -> throw UnsupportedOperationException()
+            2 -> actual.setTypeToSelect(value as Boolean)
             3 -> actual.selected = value as T?
             4 -> actual.setAlignment(value as Int)
             else -> super.updateActual(prop - ownProps, actual, value)

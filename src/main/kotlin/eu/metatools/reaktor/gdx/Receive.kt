@@ -2,6 +2,7 @@ package eu.metatools.reaktor.gdx
 
 abstract class Receive<in T> {
     abstract fun receive(item: T)
+
     operator fun T.unaryPlus() = receive(this)
 }
 

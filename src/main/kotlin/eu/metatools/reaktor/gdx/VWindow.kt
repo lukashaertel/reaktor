@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Window
 import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle
 import eu.metatools.reaktor.gdx.data.ExtentValues
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extKeepInStage
 import eu.metatools.reaktor.gdx.internals.extResizeBorder
 
@@ -40,8 +39,8 @@ open class VWindow(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
-    init: ReceiverCellsChildren = {}
+    ref: (Table) -> Unit = defaultRef,
+    init: ReceiverCellsChildren = {},
 ) : VTable(
     round,
     pad,

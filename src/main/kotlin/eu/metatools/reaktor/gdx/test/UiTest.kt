@@ -13,9 +13,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
@@ -27,6 +26,7 @@ import com.badlogic.gdx.utils.Align
 import com.maltaisn.msdfgdx.FontStyle
 import com.maltaisn.msdfgdx.MsdfFont
 import com.maltaisn.msdfgdx.MsdfShader
+import eu.metatools.reaktor.ex.*
 import eu.metatools.reaktor.gdx.*
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.data.Extents
@@ -34,9 +34,7 @@ import eu.metatools.reaktor.gdx.utils.eventListener
 import eu.metatools.reaktor.gdx.utils.get
 import eu.metatools.reaktor.gdx.utils.hex
 import eu.metatools.reaktor.gdx.utils.px
-import eu.metatools.reaktor.regenerateWrapperWithSlotAndEffects
-import eu.metatools.reaktor.useEffect
-import eu.metatools.reaktor.useState
+import eu.metatools.reaktor.reconcileNode
 import kotlin.properties.Delegates
 
 data class State(val windowVisible: Boolean, val variant: Boolean, val resa: Int = 0)
@@ -63,40 +61,102 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
     private val vectorUnit = Vector2(1f, 1f)
 
-    val regenerate = regenerateWrapperWithSlotAndEffects({
+    /**
+     * Target node for receiving reconcile with actual.
+     */
+    var stageNode by reconcileNode {
         stage = it as Stage
         Gdx.input.inputProcessor = it
-    }) { render(state) }
+    }
+
+    /**
+     * Generator handle. On yield, sets the reconcile node.
+     */
+    val root = hostRoot({ stageNode = it }) {
+        render(state)
+    }
 
     /**
      * Current state that the UI is based on. On change, invokes the wrapper with the result of rendering.
      */
-    var state: State by Delegates.observable(State(windowVisible = true, variant = false)) { _, _, _ ->
-        regenerate()
+    var state: State by Delegates.observable(State(windowVisible = true, variant = false)) { _, old, new ->
+        if (old != new)
+            root()
     }
-
 
     /**
      * Yield component with the given icon (referring to one of the icons in the icons atlas), the text and the color.
      */
-    fun yield(icon: String, text: String, color: Color) =
-        VHorizontalGroup(align = Align.center) {
+    val yield = component { icon: String, text: String, color: Color ->
+        // Will be assigned to the actor that handles the animation action.
+        var actionOwner by useState<HorizontalGroup?>(null)
+
+        // True if over, false if not over.
+        var over by useState(false)
+
+        // Initial references. Color will be modified directly and inject into LibGDX by reference.
+        val colorCurrent by useState(Color(color))
+        val listener by useState {
+            eventListener<InputEvent> {
+                // When entering and leaving, but not on press, handle and carry over state.
+                when (it.type) {
+                    InputEvent.Type.enter -> if (it.pointer < 0) true.apply { over = true } else false
+                    InputEvent.Type.exit -> if (it.pointer < 0) true.apply { over = false } else false
+                    else -> false
+                }
+            }
+        }
+
+        // Change on action owner and mouse over.
+        useEffect(listOf(over, actionOwner)) {
+            // Get action owner, if not present, ignore.
+            val target = actionOwner ?: return@useEffect
+
+            // Mark start time and animation source color.
+            val startTime = System.currentTimeMillis()
+            val colorSource = colorCurrent.cpy()
+
+            // Add action.
+            target.actions.add(object : Action() {
+                override fun act(delta: Float): Boolean {
+                    // Animate over 200ms.
+                    val progress = 5.0f * (System.currentTimeMillis() - startTime) / 1000.0f
+
+                    // Animate in the desired direction.
+                    if (over)
+                        colorCurrent.set(colorSource.cpy().lerp(color.cpy().mul(0.5f, 0.5f, 0.5f, 1f), progress))
+                    else
+                        colorCurrent.set(colorSource.cpy().lerp(color, progress))
+
+                    // Return after finished.
+                    return 1.0 <= progress
+                }
+            })
+        }
+
+
+        VHorizontalGroup(
+            ref = { actionOwner = it },
+            align = Align.center,
+            listeners = listOf(listener),
+            touchable = Touchable.enabled) {
             +VImage(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
 
             +VMsdfLabel(
                 text = text, shader = msdfShader, font = msdfFont,
                 fontStyle = FontStyle(fontWhite)
-                    .setColor(color)
+                    .setColor(colorCurrent)
                     .setSize(20f)
                     .setShadowColor("#00000040".hex)
                     .setShadowOffset(vectorUnit)
             )
         }
+    }
 
     /**
      * Resource, layout amount, then icon. If amount is negative, red is used as the color, otherwise green.
      */
-    fun res(icon: String, amount: Int) =
+    val res = component { icon: String, amount: Int ->
         VHorizontalGroup(align = Align.center) {
             +VMsdfLabel(
                 text = "$amount", shader = msdfShader, font = msdfFont,
@@ -109,15 +169,22 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
             +VImage(drawable = TextureRegionDrawable(iconsAtlas[icon] ?: throw NoSuchElementException(icon)))
         }
+    }
 
     /**
      * State rendering function. Turns the state into the stage Virtual DOM.
      */
-    fun render(state: State): VStage {
+    val render = component { state: State ->
         var valueA by useState(0)
         var valueB by useState(0)
 
-        return VStage {
+        useEffect(valueA to valueB) {
+            if (valueA > 0 && valueA == valueB) {
+                this@UISimpleTest.state = this@UISimpleTest.state.copy(windowVisible = false)
+            }
+        }
+
+        VStage {
             +VTable(fillParent = true) {
                 // TODO: Cells is needed here, otherwise state in filler is made twice.
                 cells {
@@ -128,7 +195,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             }
 
             // Add window if it is visible.
-            if (false && state.windowVisible) {
+            if (state.windowVisible) {
 
                 val sva = eventListener<InputEvent> {
                     if (it.type == InputEvent.Type.touchDown) {
@@ -139,6 +206,12 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                 val svb = eventListener<InputEvent> {
                     if (it.type == InputEvent.Type.touchDown) {
                         valueB = valueB + 1
+                        true
+                    } else false
+                }
+                val svc = eventListener<InputEvent> {
+                    if (it.type == InputEvent.Type.touchDown) {
+                        this@UISimpleTest.state = state.copy(windowVisible = false)
                         true
                     } else false
                 }
@@ -162,13 +235,18 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                             +VMsdfLabel("Set variant 2", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
                                 listeners = listOf(svb))
                         }
+                        +VCell(row = 0, column = 2, expandX = 1, expandY = 1) {
+                            +VMsdfLabel("Close", shader = msdfShader, font = msdfFont, fontStyle = fontWhite,
+                                listeners = listOf(svc))
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun debugRow(state: State, extra: Map<Any, Any>) =
+
+    private val debugRow = component { state: State, extra: Map<Any, Any> ->
         VCell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
             +VContainer(background = white.tint("#00000040".hex), fillX = 1f) {
                 actor {
@@ -189,18 +267,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                 }
             }
         }
+    }
 
-    private fun filler(): VCell {
+    private val filler = component { ->
         var selected by useState("A")
-
-        val number = selected.all { it.isDigit() }
-
-        useEffect {
-            println("Mounted")
-        }
-        useEffect(number) {
-            println("Selected value is number: $number")
-        }
 
         useEffect(selected) {
             if (selected == "1")
@@ -208,21 +278,26 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         }
 
         // Think i spotted a bug going on with selected, but cannot reproduce.
-        return VCell(row = 1, expandY = 1) {
-            +VList(listStyle,
-                items = listOf("A", "B", "C", "1", "2", "3"),
-                selected = selected,
-                width = 100f, height = 100f, listeners = listOf(
-                    eventListener<ChangeListener.ChangeEvent> {
-                        selected = it.listSelected as String
-                        true
-                    }
-                ))
+        VCell(row = 1, expandY = 1) {
+            +VContainer(pad = ExtentValues(10f), background = white.tint("#00000040".hex)) {
+                actor {
+                    +VList(listStyle,
+                        items = listOf("A", "B", "C", "1", "2", "3"),
+                        selected = selected,
+                        width = 100f, height = 100f, listeners = listOf(
+                            eventListener<ChangeListener.ChangeEvent> {
+                                selected = it.listSelected as String
+                                true
+                            }
+                        ))
+                }
+            }
+
         }
     }
 
 
-    private fun yieldsAndResRow(state: State) =
+    private val yieldsAndResRow = component { state: State ->
         VCell(row = 0, expandX = 1, fillX = 1f, fillY = 1f) {
             +VContainer(background = white.tint("#00000080".hex), fillX = 1f) {
                 actor {
@@ -243,8 +318,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                 }
             }
         }
+    }
 
     override fun create() {
+        stage = Stage()
         batch = SpriteBatch()
 
         // Make font.
@@ -269,8 +346,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         iconsAtlas = TextureAtlas(Gdx.files.internal("res/gak.atlas"))
 
         // Initialize.
-        regenerate()
-//        wrapper(render(state))
+        root()
     }
 
     override fun render() {

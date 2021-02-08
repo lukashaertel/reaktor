@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.utils.Align
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extWrap
 
 open class VLabel(
@@ -35,7 +34,7 @@ open class VLabel(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef
+    ref: (Label) -> Unit = defaultRef
 ) : VWidget<Label>(fillParent,
     layoutEnabled,
     color,

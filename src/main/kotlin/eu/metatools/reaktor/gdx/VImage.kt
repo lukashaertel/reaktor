@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Scaling
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extAlign
 import eu.metatools.reaktor.gdx.internals.extScaling
 
@@ -33,7 +32,7 @@ open class VImage(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef
+    ref: (Image) -> Unit = defaultRef
 ) : VWidget<Image>(
     fillParent,
     layoutEnabled,

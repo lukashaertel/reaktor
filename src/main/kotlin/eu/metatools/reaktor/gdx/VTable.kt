@@ -5,11 +5,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
+import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.reaktor.Delegation
 import eu.metatools.reaktor.gdx.data.ExtentValues
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.*
 
 open class VTable(
@@ -34,7 +34,7 @@ open class VTable(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (Table) -> Unit = defaultRef,
     init: ReceiverCellsChildren = {}
 ) : VWidgetGroup<Table>(
     fillParent,

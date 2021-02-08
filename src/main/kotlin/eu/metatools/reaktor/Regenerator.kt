@@ -7,7 +7,7 @@ package eu.metatools.reaktor
  * @param generate Generates the virtual part for [reconcile].
  * @return Returns the generate handle.
  */
-fun regenerateWrapper(set: (Any?) -> Unit, generate: (() -> Unit) -> Any?): () -> Unit {
+fun regenerator(set: (Any?) -> Unit, generate: (() -> Unit) -> Any?): () -> Unit {
     var lastVirtual: Any? = null
     var lastActual: Any? = null
 
@@ -20,4 +20,3 @@ fun regenerateWrapper(set: (Any?) -> Unit, generate: (() -> Unit) -> Any?): () -
         }
     }, generate)
 }
-

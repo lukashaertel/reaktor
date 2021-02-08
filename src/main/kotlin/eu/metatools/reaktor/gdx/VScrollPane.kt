@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.*
 
 open class VScrollPane(
@@ -52,8 +51,8 @@ open class VScrollPane(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
-    init: ReceiverActorChildren = {}
+    ref: (ScrollPane) -> Unit = defaultRef,
+    init: ReceiverActorChildren = {},
 ) : VWidgetGroup<ScrollPane>(
     fillParent,
     layoutEnabled,

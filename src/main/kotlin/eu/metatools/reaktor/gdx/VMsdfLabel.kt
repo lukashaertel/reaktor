@@ -9,7 +9,6 @@ import com.maltaisn.msdfgdx.FontStyle
 import com.maltaisn.msdfgdx.MsdfFont
 import com.maltaisn.msdfgdx.MsdfShader
 import com.maltaisn.msdfgdx.widget.MsdfLabel
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extShader
 import eu.metatools.reaktor.gdx.internals.extSkin
 import eu.metatools.reaktor.gdx.internals.extWrap
@@ -41,7 +40,7 @@ open class VMsdfLabel(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef
+    ref: (MsdfLabel) -> Unit = defaultRef
 ) : VWidget<MsdfLabel>(
     fillParent,
     layoutEnabled,

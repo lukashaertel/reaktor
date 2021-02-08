@@ -4,11 +4,11 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Container
 import com.badlogic.gdx.scenes.scene2d.ui.Value
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.reaktor.gdx.data.ExtentValues
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extRound
 
 open class VContainer(
@@ -43,7 +43,7 @@ open class VContainer(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (Container<Actor>) -> Unit = defaultRef,
     init: ReceiverActorChildren = {}
 ) : VWidgetGroup<Container<Actor>>(
     fillParent,

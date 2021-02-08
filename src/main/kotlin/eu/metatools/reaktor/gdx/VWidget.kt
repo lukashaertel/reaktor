@@ -3,8 +3,8 @@ package eu.metatools.reaktor.gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.scenes.scene2d.ui.Widget
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extFillParent
 import eu.metatools.reaktor.gdx.internals.extLayoutEnabled
 
@@ -27,7 +27,7 @@ abstract class VWidget<A : Widget>(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef
+    ref: (A) -> Unit = defaultRef,
 ) : VActor<A>(
     color,
     name,

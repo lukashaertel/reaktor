@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.gdx.data.Extents
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extRound
 import eu.metatools.reaktor.gdx.internals.extRowAlign
 
@@ -39,7 +38,7 @@ open class VHorizontalGroup(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (HorizontalGroup) -> Unit = defaultRef,
     init: Receiver<VActor<*>> = {}
 ) : VWidgetGroup<HorizontalGroup>(
     fillParent,

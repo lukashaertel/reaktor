@@ -3,10 +3,10 @@ package eu.metatools.reaktor.gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.gdx.data.Extents
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extColumnAlign
 import eu.metatools.reaktor.gdx.internals.extRound
 
@@ -39,7 +39,7 @@ class VVerticalGroup(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (VerticalGroup) -> Unit = defaultRef,
     init: Receiver<VActor<*>> = {}
 ) : VWidgetGroup<VerticalGroup>(
     fillParent,

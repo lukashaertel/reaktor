@@ -1,16 +1,14 @@
 package eu.metatools.reaktor.gdx
 
-import eu.metatools.reaktor.gdx.data.Ref
-
 /**
  * Forward reference provider.
  * @property ref Not a prop, to push out references.
  */
 abstract class VRef<A : Any>(
-    val ref: Ref?
+    val ref: (A) -> Unit = defaultRef,
 ) : VBase<A>() {
     companion object {
-        val defaultRef: Ref? = null
+        val defaultRef: (Any?) -> Unit = {}
     }
 
     override fun begin(actual: A) {
@@ -18,6 +16,6 @@ abstract class VRef<A : Any>(
 
     override fun end(actual: A) {
         // Assign the reference if given.
-        ref?.current = actual
+        ref(actual)
     }
 }

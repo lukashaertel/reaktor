@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Value
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.gdx.data.ExtentValues
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extActor
 import eu.metatools.reaktor.gdx.internals.extColumn
 import eu.metatools.reaktor.gdx.internals.extRow
@@ -29,7 +28,7 @@ open class VCell(
     val colSpan: Int = defaultColSpan,
     val uniformX: Boolean = defaultUniformX,
     val uniformY: Boolean = defaultUniformY,
-    ref: Ref? = defaultRef,
+    ref: (Cell<Actor>) -> Unit = defaultRef,
     init: Receiver<VActor<*>> ={}
 ) : VRef<Cell<Actor>>(ref) {
     companion object {

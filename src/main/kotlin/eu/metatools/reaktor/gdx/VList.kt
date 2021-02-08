@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.Delegation
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.internals.extAlign
 import eu.metatools.reaktor.gdx.internals.extTypeToSelect
 import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
@@ -37,7 +36,7 @@ open class VList<T>(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (GdxList<T>) -> Unit = defaultRef,
 ) : VWidget<GdxList<T>>(
     fillParent,
     layoutEnabled,
@@ -75,6 +74,14 @@ open class VList<T>(
         actual.setAlignment(align)
 
         super.assign(actual)
+    }
+
+    override fun begin(actual: com.badlogic.gdx.scenes.scene2d.ui.List<T>) {
+        super.begin(actual)
+    }
+
+    override fun end(actual: com.badlogic.gdx.scenes.scene2d.ui.List<T>) {
+        super.end(actual)
     }
 
     override val props = ownProps + super.props

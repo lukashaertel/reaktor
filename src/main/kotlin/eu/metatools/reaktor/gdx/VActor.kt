@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.utils.DelayedRemovalArray
 import eu.metatools.reaktor.Delegation
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.utils.EventMediator
 import eu.metatools.reaktor.gdx.utils.resumeEventMediators
 import eu.metatools.reaktor.gdx.utils.suspendEventMediators
@@ -28,7 +27,7 @@ abstract class VActor<A : Actor>(
     val touchable: Touchable = defaultTouchable,
     val listeners: List<EventListener> = defaultListeners,
     val captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef
+    ref: (A) -> Unit = defaultRef,
 ) : VRef<A>(ref) {
     companion object {
         val defaultColor: Color = Color.WHITE

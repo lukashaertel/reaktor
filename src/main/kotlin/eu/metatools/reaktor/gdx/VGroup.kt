@@ -5,8 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import eu.metatools.reaktor.Delegation
-import eu.metatools.reaktor.gdx.data.Ref
 
 abstract class VGroup<A : Group>(
     color: Color = defaultColor,
@@ -25,7 +25,7 @@ abstract class VGroup<A : Group>(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (A) -> Unit = defaultRef,
     init: Receiver<VActor<*>> = {}
 ) : VActor<A>(color,
     name,

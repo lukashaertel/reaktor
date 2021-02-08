@@ -3,8 +3,8 @@ package eu.metatools.reaktor.gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import eu.metatools.reaktor.gdx.data.Ref
 import eu.metatools.reaktor.gdx.utils.EventMediator
 import eu.metatools.reaktor.gdx.utils.resumeEventMediators
 import eu.metatools.reaktor.gdx.utils.suspendEventMediators
@@ -14,7 +14,7 @@ open class VStage(
     val debugAll: Boolean = defaultDebugAll,
     val listeners: List<EventListener> = defaultListeners,
     val captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: Ref? = defaultRef,
+    ref: (Stage) -> Unit = defaultRef,
     init: Receiver<VActor<*>> = {}
 ) : VRef<Stage>(ref) {
     companion object {

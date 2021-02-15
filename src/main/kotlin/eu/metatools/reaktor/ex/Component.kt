@@ -4,18 +4,22 @@ import eu.metatools.reaktor.isRerunSet
 
 private val componentResults = HashMap<Any, Pair<Any?, Any?>>()
 
-fun <T> defineComponent(block: (args: Any?) -> T) = { args: Any? ->
+/**
+ * Generates the component value. Will use [currentKey] to amend the localization. The [args] are checked for changes
+ * to return the same result. The [block] is run for the new result, if args changed or no existing result is present.
+ */
+private inline fun <T> generateComponent(args: Any?, crossinline block: () -> T): T {
     // Get location.
-    val location = localize()
+    val location = localize() + currentKey
 
     // Remove the location from computed results on invalidation.
-    amendInvalidation({ componentResults.remove(location) }) {
+    return amendInvalidation({ componentResults.remove(location) }) {
         // Get existing result.
         var existing = componentResults[location]
 
         // If not yet computed or mismatching arguments, recompute.
         if (existing == null || existing.first != args) {
-            existing = args to block(args)
+            existing = args to block()
             if (isRerunSet())
                 componentResults.remove(location)
             else
@@ -28,74 +32,37 @@ fun <T> defineComponent(block: (args: Any?) -> T) = { args: Any? ->
     }
 }
 
-inline fun <T> component(crossinline block: () -> T): () -> T {
-    // Bind directly, no casts needed.
-    val actual = defineComponent { block() }
-
-    // Return wrapper.
-    return { actual(Unit) }
+/**
+ * Defines a zero-argument component.
+ */
+fun <T> component(block: () -> T) = WithKey0 {
+    generateComponent(Unit) { block() }
 }
 
-inline fun <A1, T> component(crossinline block: (A1) -> T): (A1) -> T {
-    // Bind with casts.
-    val actual = defineComponent {
-        // Cast arguments.
-        @Suppress("unchecked_cast")
-        it as A1
-
-        // Return block results.
-        block(it)
-    }
-
-    // Return wrapper.
-    return { actual(it) }
+/**
+ * Defines a one-argument component.
+ */
+fun <A1, T> component(block: (A1) -> T) = WithKey1 { a1: A1 ->
+    generateComponent(a1) { block(a1) }
 }
 
-inline fun <A1, A2, T> component(crossinline block: (A1, A2) -> T): (A1, A2) -> T {
-    // Bind with casts.
-    val actual = defineComponent {
-        @Suppress("unchecked_cast")
-        it as Pair<A1, A2>
-        block(it.first, it.second)
-    }
-
-    // Return wrapper.
-    return { a1, a2 -> actual(a1 to a2) }
+/**
+ * Defines a two-argument component.
+ */
+fun <A1, A2, T> component(block: (A1, A2) -> T) = WithKey2 { a1: A1, a2: A2 ->
+    generateComponent(a1 to a2) { block(a1, a2) }
 }
 
-
-inline fun <A1, A2, A3, T> component(crossinline block: (A1, A2, A3) -> T): (A1, A2, A3) -> T {
-    // Bind with casts.
-    val actual = defineComponent {
-        @Suppress("unchecked_cast")
-        it as Triple<A1, A2, A3>
-        block(it.first, it.second, it.third)
-    }
-
-    // Return wrapper.
-    return { a1, a2, a3 -> actual(Triple(a1, a2, a3)) }
+/**
+ * Defines a three-argument component.
+ */
+fun <A1, A2, A3, T> component(block: (A1, A2, A3) -> T) = WithKey3 { a1: A1, a2: A2, a3: A3 ->
+    generateComponent(Triple(a1, a2, a3)) { block(a1, a2, a3) }
 }
 
-inline fun <A1, A2, A3, A4, T> component(crossinline block: (A1, A2, A3, A4) -> T): (A1, A2, A3, A4) -> T {
-    // Bind with casts.
-    val actual = defineComponent {
-        @Suppress("unchecked_cast")
-        it as Triple<A1, A2, Pair<A3, A4>>
-        block(it.first, it.second, it.third.first, it.third.second)
-    }
-
-    // Return wrapper.
-    return { a1, a2, a3, a4 -> actual(Triple(a1, a2, a3 to a4)) }
-}
-
-inline fun <A1, A2, A3, A4, A5, T> component(crossinline block: (A1, A2, A3, A4, A5) -> T): (A1, A2, A3, A4, A5) -> T {
-    // Bind with casts.
-    val actual = defineComponent {
-        @Suppress("unchecked_cast")
-        it as Triple<A1, A2, Triple<A3, A4, A5>>
-        block(it.first, it.second, it.third.first, it.third.second, it.third.third)
-    }
-
-    // Return wrapper.
-    return { a1, a2, a3, a4, a5 -> actual(Triple(a1, a2, Triple(a3, a4, a5))) }
+/**
+ * Defines a four-argument component.
+ */
+fun <A1, A2, A3, A4, T> component(block: (A1, A2, A3, A4) -> T) = WithKey4 { a1: A1, a2: A2, a3: A3, a4: A4 ->
+    generateComponent(Triple(a1, a2, a3 to a4)) { block(a1, a2, a3, a4) }
 }

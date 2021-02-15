@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.maltaisn.msdfgdx.FontStyle
 import com.maltaisn.msdfgdx.MsdfFont
 import com.maltaisn.msdfgdx.MsdfShader
@@ -35,6 +36,7 @@ import eu.metatools.reaktor.gdx.utils.get
 import eu.metatools.reaktor.gdx.utils.hex
 import eu.metatools.reaktor.gdx.utils.px
 import eu.metatools.reaktor.reconcileNode
+import org.lwjgl.opengl.Display
 import kotlin.properties.Delegates
 
 data class State(val windowVisible: Boolean, val variant: Boolean, val resa: Int = 0)
@@ -184,7 +186,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             }
         }
 
-        VStage {
+        VStage(viewport = StretchViewport(1280f, 720f)) {
             +VTable(fillParent = true) {
                 // TODO: Cells is needed here, otherwise state in filler is made twice.
                 cells {
@@ -245,6 +247,13 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         }
     }
 
+    private val debugLabel = component { label: Any, value: Any ->
+        VMsdfLabel(
+            text = "$label: $value",
+            shader = msdfShader, font = msdfFont,
+            fontStyle = FontStyle(fontWhite).setColor(Color.GOLDENROD)
+        )
+    }
 
     private val debugRow = component { state: State, extra: Map<Any, Any> ->
         VCell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
@@ -257,12 +266,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                             fontStyle = FontStyle(fontWhite)
                         )
 
+                        // Iterating in a loop. Key must be set because the location of the call will be the same, but
+                        // the arguments are actually different.
                         for ((k, v) in extra)
-                            +VMsdfLabel(
-                                text = "$k: $v",
-                                shader = msdfShader, font = msdfFont,
-                                fontStyle = FontStyle(fontWhite).setColor(Color.GOLDENROD)
-                            )
+                            +debugLabel(key = k, k, v)
                     }
                 }
             }

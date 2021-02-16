@@ -44,7 +44,7 @@ open class VContainer(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Container<Actor>) -> Unit = defaultRef,
-    init: ReceiverActorChildren = {}
+    init: ReceiverActorChildren = {},
 ) : VWidgetGroup<Container<Actor>>(
     fillParent,
     layoutEnabled,

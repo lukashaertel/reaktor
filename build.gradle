@@ -22,3 +22,9 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     implementation "com.maltaisn:msdf-gdx:0.2.0"
 }
+
+compileKotlin {
+    kotlinOptions {
+        useIR = true
+    }
+}

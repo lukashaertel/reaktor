@@ -32,7 +32,17 @@ import eu.metatools.reaktor.reconcileNode
 import kotlin.math.ceil
 import kotlin.properties.Delegates
 
-
+/**
+ * If [isIn], animates with [setIn] over the given [time]. Otherwise, uses [setOut]. The value at the point of change
+ * is captured with the given [capture] function. The [owner] manages the animation action. The animation functions
+ * receive the captured initial value and the progress between zero and one.
+ * @param isIn True if animation target is in.
+ * @param owner The owner of the actions used for animations. If null, animation is skipped for now.
+ * @param time The time in milliseconds.
+ * @param capture The initial value capturing function.
+ * @param setIn Animation in function.
+ * @param setOut Animation out function.
+ */
 fun <T> useAnimationEffect(
     isIn: Boolean, owner: Actor?, time: Int, capture: () -> T,
     setIn: (T, Float) -> Unit,
@@ -41,7 +51,7 @@ fun <T> useAnimationEffect(
     if (owner == null)
         return@useEffect
 
-    // Mark start time and animation source color.
+    // Mark start time and animation source value.
     val startTime = System.currentTimeMillis()
     val captured = capture()
 
@@ -85,8 +95,6 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         .setShadowOffset(Vector2(1f, 1f))
         .setShadowColor("#00000060".hex)
         .setSize(24f)
-
-    private val vectorUnit = Vector2(1f, 1f)
 
     /**
      * Target node for receiving reconcile with actual.
@@ -251,7 +259,9 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     +VHorizontalGroup {
                         +button("Menu", iconsAtlas["checkbox"].asDrawable()) {}
                         +button("Great people", iconsAtlas["great_people"].asDrawable()) {}
-                        +button("Things and stuff", null) {}
+                        +button("Things and stuff", null) {
+                            this@UISimpleTest.state = state.copy(windowVisible = true)
+                        }
                     }
                 }
             }

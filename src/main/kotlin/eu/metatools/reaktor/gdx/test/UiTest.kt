@@ -6,10 +6,8 @@ import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
 import com.badlogic.gdx.graphics.*
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.NinePatch
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.*
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.*
@@ -29,7 +27,6 @@ import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.data.Extents
 import eu.metatools.reaktor.gdx.utils.*
 import eu.metatools.reaktor.reconcileNode
-import kotlin.math.ceil
 import kotlin.properties.Delegates
 
 /**
@@ -76,11 +73,16 @@ fun <T> useAnimationEffect(
 data class State(val windowVisible: Boolean, val resa: Int = 0)
 
 class UISimpleTest : InputAdapter(), ApplicationListener {
+    private val scalingFactor = 1.5f
+
+    private val commonDimension = 8f
+
     private lateinit var stage: Stage
     private lateinit var batch: SpriteBatch
     private lateinit var font: BitmapFont
     private lateinit var white: TextureRegionDrawable
-    private lateinit var whiteBorder: NinePatchDrawable
+    private lateinit var whiteBorder: Drawable
+    private lateinit var backgroundDrawable: Drawable
     private lateinit var empty: BaseDrawable
     private lateinit var windowStyle: WindowStyle
     private lateinit var labelStyle: LabelStyle
@@ -127,17 +129,18 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         var valueB by useState(0)
 
         useEffect(valueA to valueB) {
-            if (valueA > 0 && valueA == valueB) {
-                this@UISimpleTest.state = this@UISimpleTest.state.copy(windowVisible = false)
-            }
+//            if (valueA > 0 && valueA == valueB) {
+//                this@UISimpleTest.state = this@UISimpleTest.state.copy(windowVisible = false)
+//            }
         }
 
-        VStage(viewport = ScreenViewport().also { it.unitsPerPixel = 1f / ceil(Gdx.graphics.density) }) {
+        VStage(viewport = ScreenViewport().also { it.unitsPerPixel = 1f / (Gdx.graphics.density * scalingFactor) }) {
+            +VImage(drawable = backgroundDrawable, fillParent = true)
             +VTable(fillParent = true) {
                 // TODO: Cells is needed here, otherwise state in filler is made twice.
                 cells {
                     +topBar(state)
-                    +filler()
+                    +filler(valueA, valueB)
                     +bottomBar(state, mapOf("A" to valueA, "B" to valueB))
                 }
             }
@@ -154,13 +157,13 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     width = 500f,
                     height = 200f) {
                     cells {
-                        +VCell(row = 0, column = 0, expandX = 1, expandY = 1) {
+                        +VCell(row = 0, column = 0, expandX = 1, expandY = 0) {
                             +button("Increase A", TextureRegionDrawable(iconsAtlas["research"]!!)) { valueA++ }
                         }
-                        +VCell(row = 0, column = 1, expandX = 1, expandY = 1) {
+                        +VCell(row = 0, column = 1, expandX = 1, expandY = 0) {
                             +button("Increase B", TextureRegionDrawable(iconsAtlas["gold"]!!)) { valueB++ }
                         }
-                        +VCell(row = 0, column = 2, expandX = 1, expandY = 1) {
+                        +VCell(row = 0, column = 2, expandX = 1, expandY = 0) {
                             +button("Close", null) {
                                 this@UISimpleTest.state = state.copy(windowVisible = false)
                             }
@@ -171,13 +174,15 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         }
     }
 
+    private val borderedPad = ExtentValues(commonDimension, commonDimension)
+
     private fun bordered(
         ref: (Container<Actor>) -> Unit = {},
         listeners: List<EventListener> = listOf(),
         content: VActor<*>,
-    ) = VContainer(ref = ref, listeners = listeners, pad = ExtentValues(5f)) {
+    ) = VContainer(ref = ref, listeners = listeners, pad = borderedPad) {
         actor {
-            +VContainer(pad = ExtentValues(5f), background = whiteBorder) {
+            +VContainer(pad = borderedPad, background = whiteBorder) {
                 actor {
                     +content
                 }
@@ -192,7 +197,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         var over by useState(false)
 
         // Animated state.
-        val style by useState { FontStyle(fontWhite).setSize(16f) }
+        val style by useState { FontStyle(fontWhite).setSize(18f) }
 
         // Animate using effect based on "over" state. Interpolate weight from captured value to target.
         useAnimationEffect(over, root, 350, { style.weight },
@@ -206,7 +211,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         val listeners = listOf(enterListener, exitListener, touchListener)
 
         // Return bordered horizontal group with optional image and button.
-        bordered({ root = it }, listeners, VHorizontalGroup(space = 5f) {
+        bordered({ root = it }, listeners, VHorizontalGroup(space = commonDimension) {
             if (img != null)
                 +VImage(drawable = img)
 
@@ -216,18 +221,29 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                 fontStyle = style)
         })
     }
+    private val progress = component { filled: Drawable, open: Drawable, progress: Float ->
+        VImage(object : BaseDrawable() {
+            override fun draw(batch: Batch, x: Float, y: Float, width: Float, height: Float) {
+                val mid = progress * width
+                if (mid > 0f)
+                    filled.draw(batch, x, y, mid, height)
+                if (mid < width)
+                    open.draw(batch, x + mid, y, width - mid, height)
+            }
+        })
+    }
 
     private val debugLabel = component { label: Any, value: Any ->
         VMsdfLabel(
             text = "$label: $value",
             shader = msdfShader, font = msdfFont,
-            fontStyle = FontStyle(fontWhite).setColor(Color.GOLDENROD)
+            fontStyle = FontStyle(fontWhite).setColor(Color.RED)
         )
     }
 
     private val bottomBar = component { state: State, extra: Map<Any, Any> ->
         VCell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
-            +VContainer(background = white.tint("#00000040".hex), fillX = 1f) {
+            +VContainer(background = whiteBorder, fillX = 1f) {
                 actor {
                     +VHorizontalGroup(pad = Extents(8f, 2f), space = 20f) {
                         +VMsdfLabel(
@@ -246,8 +262,21 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         }
     }
 
-    private val filler = component { ->
+    private val filler = component { valueA: Number, valueB: Number ->
+        val emptyDrawable by useState { BaseDrawable() }
+        val num = minOf(valueA.toFloat(), valueB.toFloat())
+        val den = maxOf(valueA.toFloat(), valueB.toFloat())
+        val ratio = if (den == 0f) 0f else num / den
+
         VCell(row = 1, expandY = 1) {
+            +VContainer(minWidth = 200.px,
+                minHeight = 10.px,
+                background = whiteBorder,
+                pad = ExtentValues(commonDimension)) {
+                actor {
+                    +progress(white.tint(Color.RED), emptyDrawable, ratio)
+                }
+            }
         }
     }
 
@@ -256,7 +285,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         VCell(row = 0, expandX = 1, fillX = 1f, fillY = 1f) {
             +VContainer(fillX = 1f) {
                 actor {
-                    +VHorizontalGroup {
+                    +VHorizontalGroup(space = -commonDimension) {
                         +button("Menu", iconsAtlas["checkbox"].asDrawable()) {}
                         +button("Great people", iconsAtlas["great_people"].asDrawable()) {}
                         +button("Things and stuff", null) {
@@ -281,14 +310,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             fill()
         }))
 
-        whiteBorder = NinePatchDrawable(NinePatch(Texture(Pixmap(32, 32, Pixmap.Format.RGBA8888).apply {
-            setColor(Color.WHITE)
-            fillRectangle(0, 0, 32, 1)
-            fillRectangle(0, 0, 1, 32)
-            fillRectangle(31, 0, 1, 32)
-            fillRectangle(0, 31, 32, 1)
-        }), 1, 1, 1, 1))
-
+        whiteBorder = LayerDrawable(listOf(
+            RectDrawable(ShapeRenderer.ShapeType.Filled, Color(1f, 1f, 1f, 0.05f)),
+            RectDrawable(ShapeRenderer.ShapeType.Line, Color(1f, 1f, 1f, 1f))))
+        backgroundDrawable = Gradient.vertical(ShapeRenderer.ShapeType.Filled, "#4e8771".hex, "#325e53".hex)
 
         // Make empty context dependent resources.
         empty = BaseDrawable()
@@ -309,7 +334,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     override fun render() {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        stage.act(Gdx.graphics.deltaTime.coerceAtMost(1 / 30f))
+        stage.act(Gdx.graphics.deltaTime)
         stage.draw()
     }
 

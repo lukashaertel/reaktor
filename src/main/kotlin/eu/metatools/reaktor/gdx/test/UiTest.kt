@@ -7,7 +7,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.*
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.*
@@ -25,6 +24,7 @@ import eu.metatools.reaktor.ex.*
 import eu.metatools.reaktor.gdx.*
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.data.Extents
+import eu.metatools.reaktor.gdx.shapes.*
 import eu.metatools.reaktor.gdx.utils.*
 import eu.metatools.reaktor.reconcileNode
 import kotlin.properties.Delegates
@@ -83,6 +83,8 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     private lateinit var white: TextureRegionDrawable
     private lateinit var whiteBorder: Drawable
     private lateinit var backgroundDrawable: Drawable
+    private lateinit var progressRedDrawable: Drawable
+    private lateinit var progressBlueDrawable: Drawable
     private lateinit var empty: BaseDrawable
     private lateinit var windowStyle: WindowStyle
     private lateinit var labelStyle: LabelStyle
@@ -274,7 +276,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                 background = whiteBorder,
                 pad = ExtentValues(commonDimension)) {
                 actor {
-                    +progress(white.tint(Color.RED), emptyDrawable, ratio)
+                    +progress(progressRedDrawable, progressBlueDrawable, ratio)
                 }
             }
         }
@@ -310,10 +312,19 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             fill()
         }))
 
-        whiteBorder = LayerDrawable(listOf(
-            RectDrawable(ShapeRenderer.ShapeType.Filled, Color(1f, 1f, 1f, 0.05f)),
-            RectDrawable(ShapeRenderer.ShapeType.Line, Color(1f, 1f, 1f, 1f))))
-        backgroundDrawable = Gradient.vertical(ShapeRenderer.ShapeType.Filled, "#4e8771".hex, "#325e53".hex)
+        backgroundDrawable = RectDrawable(true, verticalGradient("#4e8771".hex, "#325e53".hex))
+
+        whiteBorder = LayerDrawable(
+            RectRoundedDrawable(true, 8f, horizontalGradient("#ddee2240".hex, "#ccee0000".hex)),
+            RectRoundedDrawable(false, 8f, horizontalGradient("#aaff00".hex, "#ffffff".hex)))
+
+        progressRedDrawable = LayerDrawable(
+            RectRoundedDrawable(true, 8f, horizontalGradient("#ed1234".hex, "#fe2345".hex)),
+            RectRoundedDrawable(false, 8f, "#560102".hex))
+
+        progressBlueDrawable = LayerDrawable(
+            RectRoundedDrawable(true, 8f, horizontalGradient("#1234ed".hex, "#2345fe".hex)),
+            RectRoundedDrawable(false, 8f, "#010256".hex))
 
         // Make empty context dependent resources.
         empty = BaseDrawable()
@@ -354,6 +365,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
 fun main() {
     LwjglApplication(UISimpleTest(), LwjglApplicationConfiguration().apply {
+        samples = 16
         width = 1920
         height = 1080
     })

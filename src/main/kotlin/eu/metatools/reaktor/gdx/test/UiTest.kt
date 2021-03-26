@@ -312,19 +312,22 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             fill()
         }))
 
-        backgroundDrawable = RectDrawable(true, verticalGradient("#4e8771".hex, "#325e53".hex))
+        backgroundDrawable = RectDrawable(Fill, verticalGradient("#4e8771".hex, "#325e53".hex))
 
+        val wc = Corners.all except Corners.topRight
         whiteBorder = LayerDrawable(
-            RectRoundedDrawable(true, 8f, horizontalGradient("#ddee2240".hex, "#ccee0000".hex)),
-            RectRoundedDrawable(false, 8f, horizontalGradient("#aaff00".hex, "#ffffff".hex)))
+            RectRoundedDrawable(Fill, commonDimension, "#ffffff20".hex, corners = wc),
+            RectRoundedDrawable(Line, commonDimension, "#ffffff70".hex, corners = wc))
 
+        val rc = Corners.bottomLeft and Corners.topLeft
+        val bc = Corners.bottomRight and Corners.topRight
         progressRedDrawable = LayerDrawable(
-            RectRoundedDrawable(true, 8f, horizontalGradient("#ed1234".hex, "#fe2345".hex)),
-            RectRoundedDrawable(false, 8f, "#560102".hex))
+            RectRoundedDrawable(Fill, commonDimension, horizontalGradient("#ed1234".hex, "#fe2345".hex), corners = rc),
+            RectRoundedDrawable(Line(2f), commonDimension, "#560102".hex, corners = rc))
 
         progressBlueDrawable = LayerDrawable(
-            RectRoundedDrawable(true, 8f, horizontalGradient("#1234ed".hex, "#2345fe".hex)),
-            RectRoundedDrawable(false, 8f, "#010256".hex))
+            RectRoundedDrawable(Fill, commonDimension, horizontalGradient("#1234ed".hex, "#2345fe".hex), corners = bc),
+            RectRoundedDrawable(Line(2f), commonDimension, "#010256".hex, corners = bc))
 
         // Make empty context dependent resources.
         empty = BaseDrawable()

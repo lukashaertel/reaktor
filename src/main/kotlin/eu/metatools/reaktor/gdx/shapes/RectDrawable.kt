@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 
 /**
- * Drawable defining a rectangle that is colored according to [colorAt] and filled or outlined according to [mode].
+ * Drawable defining a rectangle that is colored according to [color] and filled or outlined according to [mode].
  */
-data class RectDrawable(val mode: ShapeMode, val colorAt: ColorAt) : ShapeDrawable() {
+data class RectDrawable(val mode: ShapeMode, val color: ColorUV) : ShapeDrawable() {
     /**
      * Creates a rectangle drawable with a solid color.
      */
@@ -16,26 +16,36 @@ data class RectDrawable(val mode: ShapeMode, val colorAt: ColorAt) : ShapeDrawab
         if (width <= 0f) return
         if (height <= 0f) return
 
-        val renderer = shapeRenderer.renderer
+        val colorAbs = color.toAbs(x, y, width, height)
 
         if (mode.filled) {
-
+            // Filled, begin shape filled and start using fill painter.
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
             val painter = PainterFill(shapeRenderer.renderer)
-            painter.next(x, y, colorAt(x, y, 0f, 0f, 0f, 0f))
-            painter.next(x, y + height, colorAt(x, y + height, 0f, height, 0f, 1f))
-            painter.next(x + width, y + height, colorAt(x + width, y + height, width, height, 1f, 1f))
-            painter.next(x + width, y, colorAt(x + width, y, width, 0f, 1f, 0f))
+
+            // Add all corners directly.
+            painter.next(x, y, colorAbs)
+            painter.next(x, y + height, colorAbs)
+            painter.next(x + width, y + height, colorAbs)
+            painter.next(x + width, y, colorAbs)
+
+            // Close shape and end renderer.
             painter.close()
             shapeRenderer.end()
         } else {
+            // Line, assign given line width.
             lineWidthFor(mode.lineWidth) {
+                // Filed, begin shape filled and start using line painter.
                 shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
                 val painter = PainterLine(shapeRenderer.renderer)
-                painter.next(x, y, colorAt(x, y, 0f, 0f, 0f, 0f))
-                painter.next(x, y + height, colorAt(x, y + height, 0f, height, 0f, 1f))
-                painter.next(x + width, y + height, colorAt(x + width, y + height, width, height, 1f, 1f))
-                painter.next(x + width, y, colorAt(x + width, y, width, 0f, 1f, 0f))
+
+                // Add all corners directly.
+                painter.next(x, y, colorAbs)
+                painter.next(x, y + height, colorAbs)
+                painter.next(x + width, y + height, colorAbs)
+                painter.next(x + width, y, colorAbs)
+
+                // Close shape and end renderer.
                 painter.close()
                 shapeRenderer.end()
             }

@@ -3,52 +3,23 @@ package eu.metatools.reaktor.gdx.shapes
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.MathUtils
-import kotlin.experimental.and
-import kotlin.experimental.inv
-import kotlin.experimental.or
-
-inline class Corners(val value: Byte) {
-    companion object {
-        val bottomLeft = Corners(1)
-        val topLeft = Corners(2)
-        val topRight = Corners(4)
-        val bottomRight = Corners(8)
-
-        val none = Corners(0)
-        val all = Corners(15)
-    }
-
-    operator fun contains(i: Int): Boolean = when (i) {
-        0 -> (value and bottomLeft.value) > 0
-        1 -> (value and topLeft.value) > 0
-        2 -> (value and topRight.value) > 0
-        3 -> (value and bottomRight.value) > 0
-        else -> false
-    }
-
-    infix fun and(other: Corners): Corners =
-        Corners(value or other.value)
-
-    infix fun except(other: Corners): Corners =
-        Corners(value and other.value.inv())
-}
 
 /**
- * Drawable defining a rectangle that is colored according to [colorAt] and filled or outlined according to [mode]. The
+ * Drawable defining a rectangle that is colored according to [color] and filled or outlined according to [mode]. The
  * corners are rounded with a radius of [r]. The corners consist of [resolution] segments, defaulting to eight.
  */
 data class RectRoundedDrawable(
     val mode: ShapeMode,
     val r: Float,
-    val colorAt: ColorAt,
-    val resolution: Int = 8,
+    val color: ColorUV,
     val corners: Corners = Corners.all,
+    val resolution: Int = 8,
 ) : ShapeDrawable() {
     /**
      * Creates a rounded rectangle drawable with a solid color.
      */
-    constructor(mode: ShapeMode, r: Float, color: Color, resolution: Int = 8, corners: Corners = Corners.all)
-            : this(mode, r, color.solid(), resolution, corners)
+    constructor(mode: ShapeMode, r: Float, color: Color, corners: Corners = Corners.all, resolution: Int = 8)
+            : this(mode, r, color.solid(), corners, resolution)
 
     /**
      * Runs the given [block] with the corner parameters. The block will have the number of the corner passed,
@@ -75,12 +46,11 @@ data class RectRoundedDrawable(
     }
 
     override fun draw(shapeRenderer: ShapeRenderer, x: Float, y: Float, width: Float, height: Float) {
-        fun colorFnAt(ax: Float, ay: Float) =
-            colorAt(ax, ay, ax - x, ay - y, (ax - x) / width, (ay - y) / height)
-
         // Empty, return.
         if (width <= 0f) return
         if (height <= 0f) return
+
+        val colorAbs = color.toAbs(x, y, width, height)
 
         // Determine radius limit.
         val d = minOf(r, minOf(height, width) / 2f)
@@ -98,11 +68,10 @@ data class RectRoundedDrawable(
                         val angle = -90f - i * 90f - (it * 90f / resolution)
                         val nx = cx + d * MathUtils.cosDeg(angle)
                         val ny = cy + d * MathUtils.sinDeg(angle)
-                        val nc = colorFnAt(nx, ny)
-                        painter.next(nx, ny, nc)
+                        painter.next(nx, ny, colorAbs)
                     }
                 else
-                    painter.next(ox, oy, colorFnAt(ox, oy))
+                    painter.next(ox, oy, colorAbs)
             }
 
             // Close shape and end renderer.
@@ -122,11 +91,10 @@ data class RectRoundedDrawable(
                             val angle = -90f - i * 90f - (it * 90f / resolution)
                             val nx = cx + d * MathUtils.cosDeg(angle)
                             val ny = cy + d * MathUtils.sinDeg(angle)
-                            val nc = colorFnAt(nx, ny)
-                            painter.next(nx, ny, nc)
+                            painter.next(nx, ny, colorAbs)
                         }
                     else
-                        painter.next(ox, oy, colorFnAt(ox, oy))
+                        painter.next(ox, oy, colorAbs)
                 }
 
                 // Close shape and end renderer.

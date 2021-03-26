@@ -21,6 +21,13 @@ interface Painter {
 }
 
 /**
+ * Invoke [Painter.next] with the color evaluated at the position. A [ColorUV] might need to be converted
+ * with [ColorUV.toAbs].
+ */
+fun Painter.next(x: Float, y: Float, color: ColorAbs) =
+    next(x, y, color(x, y))
+
+/**
  * Paints a line in [Painter] mode.
  * @param immediateModeRenderer The target renderer.
  */

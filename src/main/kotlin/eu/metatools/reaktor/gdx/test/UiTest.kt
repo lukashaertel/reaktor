@@ -272,7 +272,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
         VCell(row = 1, expandY = 1) {
             +VContainer(minWidth = 200.px,
-                minHeight = 10.px,
+                minHeight = (commonDimension * 2f).px,
                 background = whiteBorder,
                 pad = ExtentValues(commonDimension)) {
                 actor {
@@ -312,22 +312,34 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             fill()
         }))
 
-        backgroundDrawable = RectDrawable(Fill, verticalGradient("#4e8771".hex, "#325e53".hex))
+        backgroundDrawable = RectDrawable(Fill, gradientBottom("#4e8771".hex, "#325e53".hex))
 
-        val wc = Corners.all except Corners.topRight
+        val wc = Corners.topLeft and Corners.bottomRight
         whiteBorder = LayerDrawable(
             RectRoundedDrawable(Fill, commonDimension, "#ffffff20".hex, corners = wc),
-            RectRoundedDrawable(Line, commonDimension, "#ffffff70".hex, corners = wc))
+            RectRoundedDrawable(Line, commonDimension, "#ffffff70".hex, corners = wc),
+//            object : PainterDrawable(Fill) {
+//                val colorField = verticalGradient("#4589cf".hex.brighter, "#4589cf".hex.darker)
+//                override fun draw(painter: Painter, x: Float, y: Float, width: Float, height: Float) {
+//                    val colorAt = colorField(x, y, width, height)
+//
+//                    painter.next(x, y + height / 2f, colorAt)
+//                    painter.next(x + width / 2f, y + height, colorAt)
+//                    painter.next(x + width, y + height / 2f, colorAt)
+//                    painter.next(x + width / 2f, y, colorAt)
+//                }
+//            }
+        )
 
         val rc = Corners.bottomLeft and Corners.topLeft
         val bc = Corners.bottomRight and Corners.topRight
         progressRedDrawable = LayerDrawable(
-            RectRoundedDrawable(Fill, commonDimension, horizontalGradient("#ed1234".hex, "#fe2345".hex), corners = rc),
-            RectRoundedDrawable(Line(2f), commonDimension, "#560102".hex, corners = rc))
+            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#ed1234".hex.darker,  "#fe2345".hex), rc),
+            RectRoundedDrawable(Line, commonDimension, "#560102".hex, rc))
 
         progressBlueDrawable = LayerDrawable(
-            RectRoundedDrawable(Fill, commonDimension, horizontalGradient("#1234ed".hex, "#2345fe".hex), corners = bc),
-            RectRoundedDrawable(Line(2f), commonDimension, "#010256".hex, corners = bc))
+            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#1234ed".hex.darker,  "#2345fe".hex),bc),
+            RectRoundedDrawable(Line, commonDimension, "#010256".hex, bc))
 
         // Make empty context dependent resources.
         empty = BaseDrawable()

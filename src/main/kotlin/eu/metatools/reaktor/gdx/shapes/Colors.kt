@@ -2,123 +2,94 @@ package eu.metatools.reaktor.gdx.shapes
 
 import com.badlogic.gdx.graphics.Color
 
-
 /**
- * Color field evaluation function.
+ * A color function evaluated at u/v coordinates.
  */
-interface ColorField {
+interface ColorUV {
     companion object {
         /**
-         * Creates a constant color with the given bits.
+         * Creates a new function implementation.
          */
-        fun constant(color: Float) = object : ColorField {
-            override fun invoke(ox: Float, oy: Float, w: Float, h: Float, x: Float, y: Float) =
-                color
-        }
-
-        /**
-         * Creates a constant color of [color]'s bits.
-         */
-        fun constant(color: Color) = object : ColorField {
-            val bits = color.toFloatBits()
-            override fun invoke(ox: Float, oy: Float, w: Float, h: Float, x: Float, y: Float) =
-                bits
-        }
-
-        /**
-         * Creates a function implementation.
-         */
-        inline operator fun invoke(crossinline block: (ox: Float, oy: Float, w: Float, h: Float, x: Float, y: Float) -> Float) =
-            object : ColorField {
-                override fun invoke(ox: Float, oy: Float, w: Float, h: Float, x: Float, y: Float) =
-                    block(ox, oy, w, h, x, y)
+        inline operator fun invoke(crossinline block: (u: Float, v: Float) -> Float) =
+            object : ColorUV {
+                override fun invoke(u: Float, v: Float) = block(u, v)
             }
     }
 
-    operator fun invoke(ox: Float, oy: Float, w: Float, h: Float, x: Float, y: Float): Float
+    operator fun invoke(u: Float, v: Float): Float
+}
 
-    operator fun invoke(ox: Float, oy: Float, w: Float, h: Float) = { x: Float, y: Float ->
-        invoke(ox, oy, w, h, x, y)
+/**
+ * A color function evaluated at absolute coordinates.
+ */
+interface ColorAbs {
+    companion object {
+        /**
+         * Creates a new function implementation.
+         */
+        inline operator fun invoke(crossinline block: (x: Float, y: Float) -> Float) =
+            object : ColorAbs {
+                override fun invoke(x: Float, y: Float) = block(x, y)
+            }
+    }
+
+    operator fun invoke(x: Float, y: Float): Float
+}
+
+/**
+ * Returns a function taking absolute coordinates in the given space.
+ */
+fun ColorUV.toAbs(x: Float, y: Float, width: Float, height: Float) = ColorAbs { ax: Float, ay: Float ->
+    this@toAbs((ax - x) / width, (ay - y) / height)
+}
+
+/**
+ * Returns a function taking u/v coordinates in the given space.
+ */
+fun ColorAbs.toUv(x: Float, y: Float, width: Float, height: Float) = ColorUV { u: Float, v: Float ->
+    this@toUv(x + width * u, y + height * v)
+}
+
+/**
+ * A linear color function that is constant.
+ */
+fun Color.solid(): ColorUV {
+    val bits = toFloatBits()
+    return ColorUV { _, _ -> bits }
+}
+
+/**
+ * Unit gradient in horizontal direction from left.
+ */
+fun gradientLeft(from: Color, to: Color): ColorUV {
+    val capture = Color()
+    return ColorUV { u, _ -> capture.set(from).lerp(to, u.coerceIn(0f, 1f)).toFloatBits() }
+}
+
+/**
+ * Unit gradient in vertical direction from bottom.
+ */
+fun gradientBottom(from: Color, to: Color): ColorUV {
+    val capture = Color()
+    return ColorUV { _, v ->
+        capture.set(from).lerp(to, v.coerceIn(0f, 1f)).toFloatBits()
     }
 }
 
 /**
- * Creates a color field that is evaluated based on the screen coordinates.
+ * Unit gradient in horizontal direction from right.
  */
-@Suppress("FunctionName")
-inline fun ColorScreen(crossinline block: (screenX: Float, screenY: Float) -> Float) =
-    ColorField { _, _, _, _, x, y -> block(x, y) }
-
-/**
- * Creates a color field that is evaluated based on the absolute coordinates in the field.
- */
-@Suppress("FunctionName")
-inline fun ColorAbs(crossinline block: (x: Float, y: Float) -> Float) =
-    ColorField { ox, oy, _, _, x, y -> block(x - ox, y - oy) }
-
-/**
- * Creates a color field that is evaluated based on the u/v coordinates.
- */
-@Suppress("FunctionName")
-inline fun ColorUv(crossinline block: (u: Float, v: Float) -> Float) =
-    ColorField { ox, oy, width, height, x, y -> block((x - ox) / width, (y - oy) / height) }
-
-/**
- * A linear color function that is uniform.
- */
-fun Color.solid() =
-    ColorField.constant(this)
-
-/**
- * Unit gradient in horizontal direction.
- */
-fun horizontalGradient(from: Color, to: Color): ColorField {
+fun gradientRight(from: Color, to: Color): ColorUV {
     val capture = Color()
-    return ColorUv { u, _ -> capture.set(from).lerp(to, u).toFloatBits() }
+    return ColorUV { u, _ -> capture.set(from).lerp(to, (1f - u).coerceIn(0f, 1f)).toFloatBits() }
 }
 
 /**
- * Unit gradient in vertical direction.
+ * Unit gradient in vertical direction from top.
  */
-fun verticalGradient(from: Color, to: Color): ColorField {
+fun gradientTop(from: Color, to: Color): ColorUV {
     val capture = Color()
-    return ColorUv { _, v ->
-        capture.set(from).lerp(to, v).toFloatBits()
-    }
-}
-
-/**
- * Color gradient of an absolute length. Must be used with an appropriate vertex distribution.
- */
-fun absGradientLeft(from: Color, to: Color, length: Float): ColorField {
-    val capture = Color()
-    return ColorAbs { x, _ -> capture.set(from).lerp(to, (x / length).coerceIn(0f, 1f)).toFloatBits() }
-}
-
-/**
- * Color gradient of an absolute length. Must be used with an appropriate vertex distribution.
- */
-fun absGradientBottom(from: Color, to: Color, length: Float): ColorField {
-    val capture = Color()
-    return ColorAbs { _, y -> capture.set(from).lerp(to, (y / length).coerceIn(0f, 1f)).toFloatBits() }
-}
-
-/**
- * Color gradient of an absolute length. Must be used with an appropriate vertex distribution.
- */
-fun absGradientRight(from: Color, to: Color, length: Float): ColorField {
-    val capture = Color()
-    return ColorField { ox, _, w, _, x, _ ->
-        capture.set(from).lerp(to, ((ox + w - x) / length).coerceIn(0f, 1f)).toFloatBits()
-    }
-}
-
-/**
- * Color gradient of an absolute length. Must be used with an appropriate vertex distribution.
- */
-fun absGradientTop(from: Color, to: Color, length: Float): ColorField {
-    val capture = Color()
-    return ColorField { _, oy, _, h, _, y ->
-        capture.set(from).lerp(to, ((oy + h - y) / length).coerceIn(0f, 1f)).toFloatBits()
+    return ColorUV { _, v ->
+        capture.set(from).lerp(to, (1f - v).coerceIn(0f, 1f)).toFloatBits()
     }
 }

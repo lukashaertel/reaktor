@@ -314,7 +314,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
         backgroundDrawable = RectDrawable(Fill, gradientBottom("#4e8771".hex, "#325e53".hex))
 
-        val wc = Corners.topLeft and Corners.bottomRight
+        val wc = Corners.all except  Corners.topRight
         whiteBorder = LayerDrawable(
             RectRoundedDrawable(Fill, commonDimension, "#ffffff20".hex, corners = wc),
             RectRoundedDrawable(Line, commonDimension, "#ffffff70".hex, corners = wc),

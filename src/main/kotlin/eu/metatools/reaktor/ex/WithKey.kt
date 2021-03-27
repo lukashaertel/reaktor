@@ -18,7 +18,7 @@ val currentKey: Any? get() = currentKeyLocal.get()
 /**
  * Function that can be invoked with a key.
  */
-class WithKey0<T>(val block: () -> T) {
+class WithKey0<out T>(val block: () -> T) {
     /**
      * Runs the block with the default key.
      */
@@ -43,7 +43,7 @@ class WithKey0<T>(val block: () -> T) {
 /**
  * Function that can be invoked with a key.
  */
-class WithKey1<A1, T>(val block: (A1) -> T) {
+class WithKey1<in A1, out T>(val block: (A1) -> T) {
     /**
      * Runs the block with the default key.
      */
@@ -68,7 +68,7 @@ class WithKey1<A1, T>(val block: (A1) -> T) {
 /**
  * Function that can be invoked with a key.
  */
-class WithKey2<A1, A2, T>(val block: (A1, A2) -> T) {
+class WithKey2<in A1, in A2, out T>(val block: (A1, A2) -> T) {
     /**
      * Runs the block with the default key.
      */
@@ -93,7 +93,7 @@ class WithKey2<A1, A2, T>(val block: (A1, A2) -> T) {
 /**
  * Function that can be invoked with a key.
  */
-class WithKey3<A1, A2, A3, T>(val block: (A1, A2, A3) -> T) {
+class WithKey3<in A1, in A2, in A3, out T>(val block: (A1, A2, A3) -> T) {
     /**
      * Runs the block with the default key.
      */
@@ -118,7 +118,7 @@ class WithKey3<A1, A2, A3, T>(val block: (A1, A2, A3) -> T) {
 /**
  * Function that can be invoked with a key.
  */
-class WithKey4<A1, A2, A3, A4, T>(val block: (A1, A2, A3, A4) -> T) {
+class WithKey4<in A1, in A2, in A3, in A4, out T>(val block: (A1, A2, A3, A4) -> T) {
     /**
      * Runs the block with the default key.
      */

@@ -71,8 +71,41 @@ fun reconcile(vFrom: Any?, vTo: Any?, on: Any?): Any? {
     }
 
     // Target is map, continue with map diff.
-    if (vTo is Map<*, *>)
-        TODO("Map not supported yet")
+    if (vTo is Map<*, *>) {
+        if (vFrom !is Map<*, *> || on !is MutableMap<*, *>) {
+            release(vFrom, on)
+            return make(vTo)
+        }
+        // From is list, on should have it then.
+        @Suppress("unchecked_cast")
+        on as MutableMap<Any?, Any?>
+
+        // Iterate first part of union.
+        for (key in vFrom.keys)
+            if (key in vTo) {
+                // In both. Check if changed, otherwise skip.
+                if (vFrom[key] == vTo[key])
+                    continue
+
+                // Changed, apply update.
+                val update = reconcile(vFrom[key], vTo[key], on[key])
+                if (update !== on[key])
+                    on[key] = update
+            } else {
+                // In from but not in to. Remove.
+                on.remove(key)
+            }
+
+        // Iterate second part of union.
+        for (key in vTo.keys)
+            if (key !in vFrom) {
+                // Not in from, make.
+                on[key] = make(vTo[key])
+            }
+
+        // Return current value.
+        return on
+    }
 
     // Target is list, continue with list diff.
     if (vTo is List<*>) {

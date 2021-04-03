@@ -5,8 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import eu.metatools.reaktor.Delegation
+import eu.metatools.reaktor.ex.consumeKey
 
 abstract class VGroup<A : Group>(
     color: Color = defaultColor,
@@ -26,7 +26,8 @@ abstract class VGroup<A : Group>(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
-    init: Receiver<VActor<*>> = {}
+    key: Any? = consumeKey(),
+    init: Receiver<VActor<*>> = {},
 ) : VActor<A>(color,
     name,
     originX,
@@ -43,7 +44,8 @@ abstract class VGroup<A : Group>(
     touchable,
     listeners,
     captureListeners,
-    ref) {
+    ref,
+    key) {
     companion object {
         val defaultChildren = listOf<VActor<*>>()
 
@@ -86,11 +88,44 @@ abstract class VGroup<A : Group>(
 
 fun wrapChildren(prop: Int, actual: Group) =
     Delegation.list(actual, prop,
-        { children.size },
-        { at -> getChild(at) },
-        { at, value: Actor -> addActorAt(at, value); removeActor(children[at.inc()]) },
-        { value -> addActor(value) },
-        { at -> removeActor(children[at]) }
+        size = {
+            // Return the size of the current children.
+            children.size
+        },
+        get = { at ->
+            // Get child at.
+            getChild(at)
+        },
+        set = { at, value: Actor ->
+            // Get original value.
+            val overwritten = getChild(at)
+
+            // Overwrite.
+            removeActor(overwritten)
+            addActorAt(at, value)
+
+            // If not added, there's something going wrong.
+            if (value.parent != this)
+                throw IndexOutOfBoundsException(at)
+
+            // Return overwritten element.
+            overwritten
+        },
+        add = { value: Actor ->
+            // Add actor and check that it was added.
+            addActor(value)
+            value.parent == this
+        },
+        addAt = { at, value: Actor ->
+            // Add actor at index.
+            addActorAt(at, value)
+        },
+        removeAt = { at ->
+            // Get item to remove. Remove it and return it.
+            val removed = children[at]
+            removeActor(removed)
+            removed
+        }
     )
 
 fun updateActualChildren() {

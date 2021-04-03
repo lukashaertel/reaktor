@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extFillParent
 import eu.metatools.reaktor.gdx.internals.extLayoutEnabled
 
@@ -27,6 +28,7 @@ abstract class VWidgetGroup<A : WidgetGroup>(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
     init: Receiver<VActor<*>> = {},
 ) : VGroup<A>(
     color,
@@ -46,6 +48,7 @@ abstract class VWidgetGroup<A : WidgetGroup>(
     listeners,
     captureListeners,
     ref,
+    key,
     init
 ) {
     companion object {

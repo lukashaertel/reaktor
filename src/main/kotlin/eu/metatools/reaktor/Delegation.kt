@@ -17,50 +17,90 @@ object Delegation {
      * @param actual The actual object to work on.
      * @param prop The key of the list (if multiple).
      * @param size The size getter.
-     * @param getter The element getter.
-     * @param setter The element setter.
+     * @param get The element getter.
+     * @param set The element setter.
      * @param add Element addition.
-     * @param remove Element removal by index.
+     * @param addAt Element insertion.
+     * @param removeAt Element removal by index.
      */
     fun <A, E> list(
         actual: A, prop: Int,
         size: A.() -> Int,
-        getter: A.(Int) -> Any?,
-        setter: A.(Int, E) -> Unit,
-        add: A.(E) -> Unit,
-        remove: A.(Int) -> Unit
+        get: A.(index: Int) -> E,
+        set: A.(index: Int, E) -> E,
+        add: A.(element: E) -> Boolean,
+        addAt: A.(index: Int, element: E) -> Unit,
+        removeAt: A.(index: Int) -> E?,
     ): MutableListStub {
-        // Get generated lists for actual object.
         val top = lists.getOrPut(actual, ::HashMap)
 
-        // Get by key, or make new skeletal implementation.
         return top.getOrPut(prop) {
             object : MutableListStub {
-                override val size
-                    get() = actual.size()
+                override val size get() = actual.size()
 
-                override fun add(element: Any?): Boolean {
+                override fun add(element: Any?) =
                     @Suppress("unchecked_cast")
                     actual.add(element as E)
-                    return false
-                }
 
-                override fun get(index: Int): Any? {
-                    return actual.getter(index)
-                }
-
-                override fun set(index: Int, element: Any?): Any? {
+                override fun add(index: Int, element: Any?) =
                     @Suppress("unchecked_cast")
-                    actual.setter(index, element as E)
-                    return Unit
+                    actual.addAt(index, element as E)
+
+                override fun get(index: Int) =
+                    actual.get(index)
+
+                override fun set(index: Int, element: Any?) =
+                    @Suppress("unchecked_cast")
+                    actual.set(index, element as E)
+
+                override fun removeAt(index: Int) =
+                    actual.removeAt(index)
+
+                override fun hashCode(): Int {
+                    var result = 7
+                    for (i in 0 until actual.size())
+                        result = 31 * result + actual.get(i).hashCode()
+                    return result
                 }
 
-                override fun removeAt(index: Int): Any? {
-                    actual.remove(index)
-                    return Unit
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) return true
+                    if (other === null) return false
+
+                    if (other !is List<*>)
+                        return false
+
+                    if (actual.size() != other.size)
+                        return false
+
+                    for (i in 0 until other.size)
+                        if (actual.get(i) != other[i])
+                            return false
+
+                    return true
                 }
+
+                override fun iterator() = object : MutableIterator<Any?> {
+                    var at = 0
+                    var end = actual.size()
+                    override fun hasNext() = at < end
+
+                    override fun next(): Any? {
+                        val result = actual.get(at)
+                        at++
+                        return result
+                    }
+
+                    override fun remove() {
+                        actual.removeAt(at.dec())
+                        at--
+                        end--
+                    }
+                }
+
+                override fun toString() =
+                    actual.toString()
             }
         }
-
     }
 }

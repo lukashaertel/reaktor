@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.Delegation
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extAlign
 import eu.metatools.reaktor.gdx.internals.extTypeToSelect
 import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
@@ -37,6 +38,7 @@ open class VList<T>(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (GdxList<T>) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
 ) : VWidget<GdxList<T>>(
     fillParent,
     layoutEnabled,
@@ -56,7 +58,8 @@ open class VList<T>(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    key
 ) {
     companion object {
         val defaultTypeToSelect: Boolean = false
@@ -98,13 +101,37 @@ open class VList<T>(
     override fun getActual(prop: Int, actual: GdxList<T>): Any? = when (prop) {
         0 -> actual.style
         1 -> Delegation.list(actual, prop,
-            { items.size },
-            { at -> items.get(at) },
-            { at, value: T -> setItems(items.also { it[at] = value }) },
-            { value -> setItems(items.also { it.add(value) }) },
-            { at ->
-                val also = items.also { it.removeIndex(at) }
-                setItems(also)
+            size = {
+                // Return the item's size.
+                items.size
+            },
+            get = { at ->
+                // Get the item at the position.
+                items.get(at)
+            },
+            set = { at, value: T ->
+                // Get previous value, set new value, update items, return previous.
+                val result = items[at]
+                items[at] = value
+                setItems(items)
+                result
+            },
+            add = { value: T ->
+                // Add value, update items and return if last is the added value.
+                items.add(value)
+                setItems(items)
+                items.last() === value
+            },
+            addAt = { at, value: T ->
+                // Insert the item, update items.
+                items.insert(at, value)
+                setItems(items)
+            },
+            removeAt = { at ->
+                // Remove the item, update items and return the removed item.
+                val result = items.removeIndex(at)
+                setItems(items)
+                result
             })
         2 -> actual.extTypeToSelect
         3 -> actual.selected

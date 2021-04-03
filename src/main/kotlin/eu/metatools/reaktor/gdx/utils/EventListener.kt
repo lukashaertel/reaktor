@@ -1,5 +1,6 @@
 package eu.metatools.reaktor.gdx.utils
 
+import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 
@@ -7,8 +8,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
  * Type tracked event listener.
  */
 inline fun <reified T> eventListener(crossinline block: (T) -> Boolean) =
-    EventListener {
-        if (it is T) block(it) else false
+    object : EventListener {
+        val name = T::class.simpleName
+
+        override fun handle(it: Event): Boolean {
+            return if (it is T) block(it) else false
+        }
+
+        override fun toString() = "EventListener $name { ... }"
     }
 
 /**

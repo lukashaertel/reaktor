@@ -123,6 +123,10 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             root()
     }
 
+    val viewport by lazy {
+        ScreenViewport().also { it.unitsPerPixel = 1f / (Gdx.graphics.density * scalingFactor) }
+    }
+
     /**
      * State rendering function. Turns the state into the stage Virtual DOM.
      */
@@ -136,14 +140,15 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 //            }
         }
 
-        VStage(viewport = ScreenViewport().also { it.unitsPerPixel = 1f / (Gdx.graphics.density * scalingFactor) }) {
+        VStage(viewport = viewport) {
             +VImage(drawable = backgroundDrawable, fillParent = true)
             +VTable(fillParent = true) {
                 // TODO: Cells is needed here, otherwise state in filler is made twice.
                 cells {
-                    +topBar(state)
+                    +topBar(state, { valueA++ }, { valueB++ })
                     +filler(valueA, valueB)
-                    +bottomBar(state, mapOf("A" to valueA, "B" to valueB))
+                    +bottomBar(state, if (valueA < valueB) mapOf("A" to valueA, "B" to valueB) else
+                        mapOf("B" to valueA, "A" to valueB))
                 }
             }
 
@@ -207,13 +212,17 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
             { w, t -> style.weight = MathUtils.lerp(w, 0.0f, t) })
 
         // Listen to different input events.
-        val enterListener = inputListener(InputEvent.Type.enter, true) { over = true }
-        val exitListener = inputListener(InputEvent.Type.exit, true) { over = false }
-        val touchListener = inputListener(InputEvent.Type.touchDown) { clicked() }
-        val listeners = listOf(enterListener, exitListener, touchListener)
+        val listener = inputListener {
+            when {
+                it.type == InputEvent.Type.enter && it.pointer < 0 -> true.also { over = true }
+                it.type == InputEvent.Type.exit && it.pointer < 0 -> true.also { over = false }
+                it.type == InputEvent.Type.touchDown -> true.also { clicked() }
+                else -> false
+            }
+        }
 
         // Return bordered horizontal group with optional image and button.
-        bordered({ root = it }, listeners, VHorizontalGroup(space = commonDimension) {
+        bordered({ root = it }, listOf(listener), VHorizontalGroup(space = commonDimension) {
             if (img != null)
                 +VImage(drawable = img)
 
@@ -283,13 +292,17 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     }
 
 
-    private val topBar = component { state: State ->
-        VCell(row = 0, expandX = 1, fillX = 1f, fillY = 1f) {
+    private val topBar = component { state: State, onMenu: () -> Unit, onGreatPeople: () -> Unit ->
+        VCell(row = 0, expandX = 1, fillX = 1f) {
             +VContainer(fillX = 1f) {
                 actor {
                     +VHorizontalGroup(space = -commonDimension) {
-                        +button("Menu", iconsAtlas["checkbox"].asDrawable()) {}
-                        +button("Great people", iconsAtlas["great_people"].asDrawable()) {}
+                        +button("Menu", iconsAtlas["checkbox"].asDrawable()) {
+                            onMenu()
+                        }
+                        +button("Great people", iconsAtlas["great_people"].asDrawable()) {
+                            onGreatPeople()
+                        }
                         +button("Things and stuff", null) {
                             this@UISimpleTest.state = state.copy(windowVisible = true)
                         }
@@ -314,7 +327,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 
         backgroundDrawable = RectDrawable(Fill, gradientBottom("#4e8771".hex, "#325e53".hex))
 
-        val wc = Corners.all except  Corners.topRight
+        val wc = Corners.all except Corners.topRight
         whiteBorder = LayerDrawable(
             RectRoundedDrawable(Fill, commonDimension, "#ffffff20".hex, corners = wc),
             RectRoundedDrawable(Line, commonDimension, "#ffffff70".hex, corners = wc),
@@ -334,11 +347,11 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         val rc = Corners.bottomLeft and Corners.topLeft
         val bc = Corners.bottomRight and Corners.topRight
         progressRedDrawable = LayerDrawable(
-            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#ed1234".hex.darker,  "#fe2345".hex), rc),
+            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#ed1234".hex.darker, "#fe2345".hex), rc),
             RectRoundedDrawable(Line, commonDimension, "#560102".hex, rc))
 
         progressBlueDrawable = LayerDrawable(
-            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#1234ed".hex.darker,  "#2345fe".hex),bc),
+            RectRoundedDrawable(Fill, commonDimension, gradientLeft("#1234ed".hex.darker, "#2345fe".hex), bc),
             RectRoundedDrawable(Line, commonDimension, "#010256".hex, bc))
 
         // Make empty context dependent resources.

@@ -14,7 +14,7 @@ private val states = HashMap<Any, Any?>()
 fun <T> useState(initial: () -> T): ReadWriteProperty<Nothing?, T> {
     // Get invalidator and localize.
     val invalidator = invalidator()
-    val location = localize()
+    val location = localize() + peekKey()
 
     // Initialize empty locations.
     @Suppress("unchecked_cast")

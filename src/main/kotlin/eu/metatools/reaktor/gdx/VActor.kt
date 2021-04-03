@@ -6,9 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.utils.DelayedRemovalArray
 import eu.metatools.reaktor.Delegation
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.utils.EventMediator
 import eu.metatools.reaktor.gdx.utils.resumeEventMediators
 import eu.metatools.reaktor.gdx.utils.suspendEventMediators
+import eu.metatools.reaktor.util.nthIsInstance
+import kotlin.properties.Delegates.notNull
 
 abstract class VActor<A : Actor>(
     val color: Color = defaultColor,
@@ -28,7 +31,8 @@ abstract class VActor<A : Actor>(
     val listeners: List<EventListener> = defaultListeners,
     val captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
-) : VRef<A>(ref) {
+    key: Any? = consumeKey(),
+) : VRef<A>(ref, key) {
     companion object {
         val defaultColor: Color = Color.WHITE
         val defaultName: String? = null
@@ -149,9 +153,68 @@ abstract class VActor<A : Actor>(
 }
 
 fun wrapListeners(prop: Int, listeners: DelayedRemovalArray<EventListener>) = Delegation.list(listeners, prop,
-    { count { it is EventMediator } },
-    { at -> filterIsInstance<EventMediator>()[at].handler },
-    { at, value: EventListener -> filterIsInstance<EventMediator>()[at].handler = value },
-    { value: EventListener -> add(EventMediator(value)) },
-    { at -> removeValue(filterIsInstance<EventMediator>()[at], true) }
+    size = {
+        // Count instances.
+        count { it is EventMediator }
+    },
+    get = { at ->
+        // Get n-th instance.
+        nthIsInstance<EventMediator>(at).handler
+    },
+    set = { at, value: EventListener ->
+        // Get n-th instance.
+        nthIsInstance<EventMediator>(at).let { mediator ->
+            // Return current handler, assign to new handler.
+            mediator.handler.also {
+                mediator.handler = value
+            }
+        }
+    },
+    add = { value: EventListener ->
+        // Add new instance and return true.
+        add(EventMediator(value, true))
+        true
+    },
+    addAt = { at: Int, value: EventListener ->
+        // Memorize first seen.
+        var first by notNull<EventMediator>()
+        var firstSet = false
+
+        // Memorize last overwritten.
+        var last by notNull<EventListener>()
+
+        // Ignore the instances before. Then, when reached, memorize the first one as the target slot, push all back
+        // one element and memorize the parameters of the element falling off at the back to add it later.
+        asSequence().filterIsInstance<EventMediator>().drop(at).zipWithNext { a, b ->
+            // Memorize first.
+            if (!firstSet) {
+                first = a
+                firstSet = true
+            }
+
+            // Prepare last element that will have been pushed out. Carry from before.
+            last = b.handler
+            b.handler = a.handler
+        }.lastOrNull()
+
+        // Check if anything was seen.
+        if (!firstSet) {
+            // Nothing seen, use pure add.
+            add(EventMediator(value, true))
+
+        } else {
+            // Assign overwritten handler. Add the listener that was pushed out.
+            first.handler = value
+            add(EventMediator(last, true))
+        }
+    },
+    removeAt = { at ->
+        // Get the n-th mediator.
+        val mediator = nthIsInstance<EventMediator>(at)
+
+        // Remove it by value, return it's handler.
+        removeValue(mediator, true).let {
+            mediator.handler
+        }
+    }
 )

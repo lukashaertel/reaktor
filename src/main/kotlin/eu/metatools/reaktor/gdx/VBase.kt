@@ -1,11 +1,14 @@
 package eu.metatools.reaktor.gdx
 
 import eu.metatools.reaktor.Virtual
+import eu.metatools.reaktor.ex.consumeKey
 
 /**
  * Base class for virtual nodes.
  */
-abstract class VBase<A : Any> : Virtual<A> {
+abstract class VBase<A : Any>(
+    override val key: Any? = consumeKey(),
+) : Virtual<A>() {
     override fun make() = create().also(::assign)
 
     /**

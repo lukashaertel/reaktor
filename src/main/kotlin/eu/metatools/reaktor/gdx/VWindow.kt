@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Window
 import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.extKeepInStage
 import eu.metatools.reaktor.gdx.internals.extResizeBorder
@@ -40,6 +41,7 @@ open class VWindow(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Table) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
     init: ReceiverCellsChildren = {},
 ) : VTable(
     round,
@@ -64,6 +66,7 @@ open class VWindow(
     listeners,
     captureListeners,
     ref,
+    key,
     init
 ) {
     companion object {

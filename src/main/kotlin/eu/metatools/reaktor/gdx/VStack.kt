@@ -3,8 +3,8 @@ package eu.metatools.reaktor.gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Stack
+import eu.metatools.reaktor.ex.consumeKey
 
 open class VStack(
     fillParent: Boolean = defaultFillParent,
@@ -26,6 +26,7 @@ open class VStack(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Stack) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
     init: Receiver<VActor<*>> = {}
 ) : VWidgetGroup<Stack>(
     fillParent,
@@ -47,6 +48,7 @@ open class VStack(
     listeners,
     captureListeners,
     ref,
+    key,
     init
 ) {
     companion object {

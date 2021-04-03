@@ -5,12 +5,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
-import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.reaktor.Delegation
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.*
+import kotlin.collections.HashSet
 
 open class VTable(
     val round: Boolean = defaultRound,
@@ -35,7 +36,8 @@ open class VTable(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Table) -> Unit = defaultRef,
-    init: ReceiverCellsChildren = {}
+    key: Any? = consumeKey(),
+    init: ReceiverCellsChildren = {},
 ) : VWidgetGroup<Table>(
     fillParent,
     layoutEnabled,
@@ -56,6 +58,7 @@ open class VTable(
     listeners,
     captureListeners,
     ref,
+    key,
     init.toChildren()
 ) {
     companion object {
@@ -87,7 +90,7 @@ open class VTable(
 
     private val correctedCells = run {
         // Get width.
-        val max = cells.asSequence().map { it.column + it.colSpan }.max()?.inc()
+        val max = cells.asSequence().map { it.column + it.colSpan }.maxOrNull()?.inc()
 
         // No width means no cells, otherwise sort row major/column minor.
         if (max == null)
@@ -135,14 +138,32 @@ open class VTable(
     }
 
     override fun getActual(prop: Int, actual: Table): Any? = when (prop) {
-        0 -> Delegation.list(actual, prop,
-            { cells.size },
-            { at -> cells.get(at) },
-            { at, value: Cell<Actor> ->
-                cells.set(at, value)
+        0 -> Delegation.list( actual, prop,
+            size = {
+                cells.size
             },
-            { value -> cells.add(value) },
-            { at -> cells.removeIndex(at) }
+            get = { at ->
+                cells[at]
+            },
+            set = { at, value: Cell<Actor> ->
+                // Get previous value, set new value, return previous.
+                val result = cells[at]
+                cells[at] = value
+                result
+            },
+            add = { value ->
+                // Add value and return if last is the added value.
+                cells.add(value)
+                cells.last() === value
+            },
+            addAt = { at, value: Cell<Actor> ->
+                // Insert the cell, update items.
+                cells.insert(at, value)
+            },
+            removeAt = { at ->
+                // Remove cell.
+                cells.removeIndex(at)
+            }
         )
         1 -> actual.extRound
         2 -> ExtentValues(actual.padTop, actual.padLeft, actual.padBottom, actual.padRight)
@@ -190,6 +211,9 @@ open class VTable(
 
         // Compute cell locations, indices and counts.
         updateCells(actual)
+
+        // Table has issues with insertion, invalidate layout after updates.
+        actual.invalidate()
 
         super.end(actual)
     }

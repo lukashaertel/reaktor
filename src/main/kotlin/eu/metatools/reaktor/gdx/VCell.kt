@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Value
 import com.badlogic.gdx.utils.Align
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.extActor
 import eu.metatools.reaktor.gdx.internals.extColumn
@@ -29,17 +30,18 @@ open class VCell(
     val uniformX: Boolean = defaultUniformX,
     val uniformY: Boolean = defaultUniformY,
     ref: (Cell<Actor>) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
     init: Receiver<VActor<*>> ={}
-) : VRef<Cell<Actor>>(ref) {
+) : VRef<Cell<Actor>>(ref, key) {
     companion object {
         const val defaultRow = 0
         const val defaultColumn = 0
-        val defaultMinWidth: Value = Value.minWidth;
-        val defaultMinHeight: Value = Value.minHeight;
-        val defaultPrefWidth: Value = Value.prefWidth;
-        val defaultPrefHeight: Value = Value.prefHeight;
-        val defaultMaxWidth: Value = Value.maxWidth;
-        val defaultMaxHeight: Value = Value.maxHeight;
+        val defaultMinWidth: Value = Value.minWidth
+        val defaultMinHeight: Value = Value.minHeight
+        val defaultPrefWidth: Value = Value.prefWidth
+        val defaultPrefHeight: Value = Value.prefHeight
+        val defaultMaxWidth: Value = Value.maxWidth
+        val defaultMaxHeight: Value = Value.maxHeight
         val defaultSpace = ExtentValues.zero
         val defaultPad = ExtentValues.zero
         const val defaultFillX = 0f

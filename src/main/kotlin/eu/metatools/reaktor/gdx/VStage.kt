@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Scaling
 import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.utils.EventMediator
 import eu.metatools.reaktor.gdx.utils.resumeEventMediators
 import eu.metatools.reaktor.gdx.utils.suspendEventMediators
@@ -18,8 +19,9 @@ open class VStage(
     val listeners: List<EventListener> = defaultListeners,
     val captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Stage) -> Unit = defaultRef,
+    key: Any? = consumeKey(),
     init: Receiver<VActor<*>> = {},
-) : VRef<Stage>(ref) {
+) : VRef<Stage>(ref, key) {
     companion object {
         const val defaultDebugAll: Boolean = false
         val defaultViewport: Viewport = ScalingViewport(Scaling.stretch,

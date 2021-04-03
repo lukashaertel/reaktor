@@ -1,5 +1,6 @@
 package eu.metatools.reaktor
 
+
 /**
  * Applies the difference between [vFrom] and [vTo] to [on] and returns the result.
  */
@@ -36,10 +37,6 @@ fun reconcile(vFrom: Any?, vTo: Any?, on: Any?): Any? {
             release(vFrom, on)
             return vTo.make()
         }
-
-        // If equal by property, return.
-        if (vFrom.propsEqual(vTo))
-            return on
 
         // Mark as virtual of any.
         @Suppress("unchecked_cast")
@@ -118,23 +115,9 @@ fun reconcile(vFrom: Any?, vTo: Any?, on: Any?): Any? {
         @Suppress("unchecked_cast")
         on as MutableList<Any?>
 
-        // TODO: Key correspondence.
-
-        // Update common.
-        for (i in 0 until minOf(vTo.size, on.size)) {
-            val update = reconcile(vFrom[i], vTo[i], on[i])
-            if (update !== on[i])
-                on[i] = update
-        }
-
-        // Trim excess.
-        for (i in vTo.size until on.size)
-            on.removeAt(vTo.size)
-
-        // Make new.
-        if (vTo.size > vFrom.size) {
-            for (i in vFrom.size until vTo.size)
-                on.add(make(vTo[i]))
+        // Perform reordering based on present keys or reference. Create by make and merge by reconcile.
+        reorderMergeByKey(vFrom, vTo, on, ::match, ::make, ::release) { f, t, o ->
+            reconcile(f, t, o)
         }
 
         // Return current value.

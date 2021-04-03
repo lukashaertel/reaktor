@@ -5,12 +5,12 @@ import eu.metatools.reaktor.isRerunSet
 private val componentResults = HashMap<Any, Pair<Any?, Any?>>()
 
 /**
- * Generates the component value. Will use [currentKey] to amend the localization. The [args] are checked for changes
+ * Generates the component value. Will use current key to amend the localization. The [args] are checked for changes
  * to return the same result. The [block] is run for the new result, if args changed or no existing result is present.
  */
 private inline fun <T> generateComponent(args: Any?, crossinline block: () -> T): T {
     // Get location.
-    val location = localize() + currentKey
+    val location = localize() + peekKey()
 
     // Remove the location from computed results on invalidation.
     return amendInvalidation({ componentResults.remove(location) }) {

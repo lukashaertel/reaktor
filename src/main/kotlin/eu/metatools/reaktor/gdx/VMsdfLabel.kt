@@ -9,6 +9,7 @@ import com.maltaisn.msdfgdx.FontStyle
 import com.maltaisn.msdfgdx.MsdfFont
 import com.maltaisn.msdfgdx.MsdfShader
 import com.maltaisn.msdfgdx.widget.MsdfLabel
+import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extShader
 import eu.metatools.reaktor.gdx.internals.extSkin
 import eu.metatools.reaktor.gdx.internals.extWrap
@@ -40,7 +41,8 @@ open class VMsdfLabel(
     touchable: Touchable = defaultTouchable,
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
-    ref: (MsdfLabel) -> Unit = defaultRef
+    ref: (MsdfLabel) -> Unit = defaultRef,
+    key: Any? = consumeKey()
 ) : VWidget<MsdfLabel>(
     fillParent,
     layoutEnabled,
@@ -60,7 +62,8 @@ open class VMsdfLabel(
     touchable,
     listeners,
     captureListeners,
-    ref
+    ref,
+    key
 ) {
     companion object {
         val defaultFontStyle = FontStyle()

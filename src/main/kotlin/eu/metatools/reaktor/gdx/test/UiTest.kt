@@ -148,7 +148,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     +topBar(state, { valueA++ }, { valueB++ })
                     +filler(valueA, valueB)
                     +bottomBar(state, if (valueA < valueB) mapOf("A" to valueA, "B" to valueB) else
-                        mapOf("B" to valueA, "A" to valueB))
+                        mapOf("B" to valueB, "A" to valueA))
                 }
             }
 

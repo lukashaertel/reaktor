@@ -17,13 +17,13 @@ fun <T> useState(initial: () -> T): ReadWriteProperty<Nothing?, T> {
     val location = localize() + peekKey()
 
     // Initialize empty locations.
-    @Suppress("unchecked_cast")
-    val atAccess = states.getOrPut(location, initial) as T
+    states.getOrPut(location, initial)
 
     @Suppress("unchecked_cast")
     return object : ReadWriteProperty<Nothing?, T> {
         override fun getValue(thisRef: Nothing?, property: KProperty<*>) =
-            atAccess
+            @Suppress("unchecked_cast")
+            states.getValue(location) as T
 
         override fun setValue(thisRef: Nothing?, property: KProperty<*>, value: T) {
             // Get original value for comparison.

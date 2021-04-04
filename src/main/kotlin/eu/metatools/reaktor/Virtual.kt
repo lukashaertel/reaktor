@@ -57,26 +57,26 @@ abstract class Virtual<A : Any> {
     open fun propEqual(prop: Int, other: Virtual<*>) =
         getOwn(prop) == other.getOwn(prop)
 
-    override fun hashCode(): Int {
-        var result = 13
-        for (i in 0 until props)
-            result = 17 * result + getOwn(i).hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other === null) return false
-
-        if (this::class != other::class)
-            return false
-
-        other as Virtual<*>
-
-        for (i in 0 until props)
-            if (getOwn(i) != other.getOwn(i))
-                return false
-
-        return true
-    }
+//    override fun hashCode(): Int {
+//        var result = 13
+//        for (i in 0 until props)
+//            result = 17 * result + getOwn(i).hashCode()
+//        return result
+//    }
+//
+//    override fun equals(other: Any?): Boolean {
+//        if (this === other) return true
+//        if (other === null) return false
+//
+//        if (this::class != other::class)
+//            return false
+//
+//        other as Virtual<*>
+//
+//        for (i in 0 until props)
+//            if (getOwn(i) != other.getOwn(i))
+//                return false
+//
+//        return true
+//    }
 }

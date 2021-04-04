@@ -222,7 +222,7 @@ open class VTable(
      * Updates above indices and end-ness for all [Table.cells] of a [Table]. Sets the table's column and
      * row counts.
      */
-    fun updateCells(actual: Table) {
+    private fun updateCells(actual: Table) {
         // Paint the index of the cell for all locations, including column spans.
         val indexFromLocation = actual.cells.withIndex().flatMap { (index, cell) ->
             (0 until cell.colspan).map { oc ->
@@ -232,11 +232,11 @@ open class VTable(
 
         // Set last to each highest cell in a row.
         actual.cells.groupBy { it.row }.forEach { (_, row) ->
-            val last = row.maxBy { it.column }!!
+            val last = row.maxByOrNull { it.column }!!
             last.extEndRow = true
             for (other in row)
                 if (other !== last)
-                    last.extEndRow = false
+                    other.extEndRow = false
         }
 
         // Highest seen row and column.

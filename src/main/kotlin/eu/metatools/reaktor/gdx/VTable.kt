@@ -11,9 +11,10 @@ import eu.metatools.reaktor.Delegation
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.*
-import kotlin.collections.HashSet
+import eu.metatools.reaktor.gdx.utils.generateMany
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VTable(
+open class VTable (
     val round: Boolean = defaultRound,
     val pad: ExtentValues = defaultPad,
     val background: Drawable? = defaultBackground,
@@ -37,7 +38,8 @@ open class VTable(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Table) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: ReceiverCellsChildren = {},
+    children: List<VActor<*>> = defaultChildren,
+    val cells: List<VCell> = defaultCells,
 ) : VWidgetGroup<Table>(
     fillParent,
     layoutEnabled,
@@ -59,7 +61,7 @@ open class VTable(
     captureListeners,
     ref,
     key,
-    init.toChildren()
+    children
 ) {
     companion object {
         val defaultRound = true
@@ -70,6 +72,7 @@ open class VTable(
             Table.backgroundRight)
         val defaultBackground = null
         val defaultTouchable = Touchable.childrenOnly
+        val defaultCells = listOf<VCell>()
 
 
         private const val ownProps = 4
@@ -79,13 +82,6 @@ open class VTable(
          */
         private val beforeRecon = ThreadLocal.withInitial { HashSet<Pair<Cell<Actor>, Actor?>>() }
 
-    }
-
-    val cells: List<VCell> = mutableListOf()
-
-    init {
-        cells as MutableList
-        init.toCells()(ReceiveMany { cells.add(it) })
     }
 
     private val correctedCells = run {
@@ -138,7 +134,7 @@ open class VTable(
     }
 
     override fun getActual(prop: Int, actual: Table): Any? = when (prop) {
-        0 -> Delegation.list( actual, prop,
+        0 -> Delegation.list(actual, prop,
             size = {
                 cells.size
             },
@@ -259,4 +255,60 @@ open class VTable(
         actual.extColumns = maxColumn.inc()
         actual.extRows = maxRow.inc()
     }
+}
+
+inline fun table(
+    round: Boolean = VTable.defaultRound,
+    pad: ExtentValues = VTable.defaultPad,
+    background: Drawable? = VTable.defaultBackground,
+    fillParent: Boolean = VWidgetGroup.defaultFillParent,
+    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VTable.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (Table) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: ()->Unit = {},
+    generateCells: ()->Unit = {},
+): VTable {
+    val children = generateMany<VActor<*>>(generateChildren)
+    val cells = generateMany<VCell>(generateCells)
+    return VTable(round,
+        pad,
+        background,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key,
+        children,
+        cells).tryReceive()
 }

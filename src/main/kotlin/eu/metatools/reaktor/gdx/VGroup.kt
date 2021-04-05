@@ -27,7 +27,7 @@ abstract class VGroup<A : Group>(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: Receiver<VActor<*>> = {},
+    val children: List<VActor<*>> = defaultChildren,
 ) : VActor<A>(color,
     name,
     originX,
@@ -50,13 +50,6 @@ abstract class VGroup<A : Group>(
         val defaultChildren = listOf<VActor<*>>()
 
         private const val ownProps = 1
-    }
-
-    val children: List<VActor<*>> = mutableListOf()
-
-    init {
-        children as MutableList
-        init(ReceiveMany { children.add(it) })
     }
 
     override fun assign(actual: A) {

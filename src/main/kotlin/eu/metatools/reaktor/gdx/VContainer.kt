@@ -10,8 +10,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.extRound
+import eu.metatools.reaktor.gdx.utils.generateAtMostOne
+import eu.metatools.reaktor.gdx.utils.generateMany
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VContainer(
+open class VContainer (
     val minWidth: Value = defaultMinWidth,
     val minHeight: Value = defaultMinHeight,
     val prefWidth: Value = defaultPrefWidth,
@@ -45,7 +48,8 @@ open class VContainer(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Container<Actor>) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: ReceiverActorChildren = {},
+    children: List<VActor<*>> = defaultChildren,
+    val actor: VActor<*>? = defaultActor,
 ) : VWidgetGroup<Container<Actor>>(
     fillParent,
     layoutEnabled,
@@ -67,7 +71,7 @@ open class VContainer(
     captureListeners,
     ref,
     key,
-    init.toChildren()
+    children
 ) {
     companion object {
         val defaultMinWidth: Value = Value.minWidth
@@ -84,16 +88,9 @@ open class VContainer(
         const val defaultClip: Boolean = false
         val defaultPad: ExtentValues = ExtentValues.zero
         val defaultTouchable = Touchable.childrenOnly
-
+        val defaultActor: VActor<*>? = null
 
         private const val ownProps = 14
-    }
-
-    var actor: VActor<*>? = VCell.defaultActor
-        private set
-
-    init {
-        init.toActor()(ReceiveOne { actor = it })
     }
 
     override fun create() = Container<Actor>()
@@ -173,4 +170,82 @@ open class VContainer(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun container(
+    minWidth: Value = VContainer.defaultMinWidth,
+    minHeight: Value = VContainer.defaultMinHeight,
+    prefWidth: Value = VContainer.defaultPrefWidth,
+    prefHeight: Value = VContainer.defaultPrefHeight,
+    maxWidth: Value = VContainer.defaultMaxWidth,
+    maxHeight: Value = VContainer.defaultMaxHeight,
+    fillX: Float = VContainer.defaultFillX,
+    fillY: Float = VContainer.defaultFillY,
+    align: Int = VContainer.defaultAlign,
+    background: Drawable? = VContainer.defaultBackground,
+    round: Boolean = VContainer.defaultRound,
+    clip: Boolean = VContainer.defaultClip,
+    pad: ExtentValues = VContainer.defaultPad,
+    fillParent: Boolean = VWidgetGroup.defaultFillParent,
+    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VContainer.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (Container<Actor>) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: ()->Unit = {},
+    generateActor: ()->Unit = {},
+): VContainer {
+    val children = generateMany<VActor<*>>(generateChildren)
+    val actor = generateAtMostOne<VActor<*>>(generateActor)
+    return VContainer(
+        minWidth,
+        minHeight,
+        prefWidth,
+        prefHeight,
+        maxWidth,
+        maxHeight,
+        fillX,
+        fillY,
+        align,
+        background,
+        round,
+        clip,
+        pad,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key,
+        children,
+        actor
+    ).tryReceive()
 }

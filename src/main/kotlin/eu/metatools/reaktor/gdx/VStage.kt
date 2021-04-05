@@ -9,9 +9,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import eu.metatools.reaktor.ex.consumeKey
-import eu.metatools.reaktor.gdx.utils.EventMediator
-import eu.metatools.reaktor.gdx.utils.resumeEventMediators
-import eu.metatools.reaktor.gdx.utils.suspendEventMediators
+import eu.metatools.reaktor.gdx.utils.*
 
 open class VStage(
     val debugAll: Boolean = defaultDebugAll,
@@ -20,7 +18,7 @@ open class VStage(
     val captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Stage) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: Receiver<VActor<*>> = {},
+    val children: List<VActor<*>> = defaultChildren,
 ) : VRef<Stage>(ref, key) {
     companion object {
         const val defaultDebugAll: Boolean = false
@@ -28,15 +26,9 @@ open class VStage(
             Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         val defaultListeners: List<EventListener> = listOf()
         val defaultCaptureListeners: List<EventListener> = listOf()
+        val defaultChildren = listOf<VActor<*>>()
 
         private const val ownProps = 5
-    }
-
-    val children: List<VActor<*>> = mutableListOf()
-
-    init {
-        children as MutableList
-        init(ReceiveMany { children.add(it) })
     }
 
     override fun create() = Stage(ScreenViewport(OrthographicCamera()))
@@ -94,4 +86,17 @@ open class VStage(
         actual.root.listeners.resumeEventMediators()
         super.end(actual)
     }
+}
+
+inline fun stage(
+    debugAll: Boolean = VStage.defaultDebugAll,
+    viewport: Viewport = VStage.defaultViewport,
+    listeners: List<EventListener> = VStage.defaultListeners,
+    captureListeners: List<EventListener> = VStage.defaultCaptureListeners,
+    noinline ref: (Stage) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: ()->Unit = {},
+): VStage {
+    val children = generateMany<VActor<*>>(generateChildren)
+    return VStage(debugAll, viewport, listeners, captureListeners, ref, key, children).tryReceive()
 }

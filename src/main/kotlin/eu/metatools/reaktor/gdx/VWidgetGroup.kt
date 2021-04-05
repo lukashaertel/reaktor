@@ -8,7 +8,7 @@ import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extFillParent
 import eu.metatools.reaktor.gdx.internals.extLayoutEnabled
 
-abstract class VWidgetGroup<A : WidgetGroup>(
+abstract class VWidgetGroup<A : WidgetGroup> internal constructor(
     val fillParent: Boolean = defaultFillParent,
     val layoutEnabled: Boolean = defaultLayoutEnabled,
     color: Color = defaultColor,
@@ -29,7 +29,7 @@ abstract class VWidgetGroup<A : WidgetGroup>(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: Receiver<VActor<*>> = {},
+    children: List<VActor<*>> = defaultChildren,
 ) : VGroup<A>(
     color,
     name,
@@ -49,7 +49,7 @@ abstract class VWidgetGroup<A : WidgetGroup>(
     captureListeners,
     ref,
     key,
-    init
+    children
 ) {
     companion object {
         const val defaultFillParent = false

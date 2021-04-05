@@ -9,6 +9,8 @@ import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.extActor
 import eu.metatools.reaktor.gdx.internals.extColumn
 import eu.metatools.reaktor.gdx.internals.extRow
+import eu.metatools.reaktor.gdx.utils.generateAtMostOne
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
 open class VCell(
     val row: Int = defaultRow,
@@ -31,7 +33,7 @@ open class VCell(
     val uniformY: Boolean = defaultUniformY,
     ref: (Cell<Actor>) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: Receiver<VActor<*>> ={}
+    val actor: VActor<*>? = defaultActor,
 ) : VRef<Cell<Actor>>(ref, key) {
     companion object {
         const val defaultRow = 0
@@ -55,13 +57,6 @@ open class VCell(
         val defaultActor: VActor<*>? = null
 
         private const val ownProps = 19
-    }
-
-    var actor: VActor<*>? = defaultActor
-        private set
-
-    init {
-        init(ReceiveOne { actor = it })
     }
 
 
@@ -166,4 +161,50 @@ open class VCell(
         actual.table?.layout()
         super.end(actual)
     }
+}
+
+inline fun cell(
+    row: Int = VCell.defaultRow,
+    column: Int = VCell.defaultColumn,
+    minWidth: Value = VCell.defaultMinWidth,
+    minHeight: Value = VCell.defaultMinHeight,
+    prefWidth: Value = VCell.defaultPrefWidth,
+    prefHeight: Value = VCell.defaultPrefHeight,
+    maxWidth: Value = VCell.defaultMaxWidth,
+    maxHeight: Value = VCell.defaultMaxHeight,
+    space: ExtentValues = VCell.defaultSpace,
+    pad: ExtentValues = VCell.defaultPad,
+    fillX: Float = VCell.defaultFillX,
+    fillY: Float = VCell.defaultFillY,
+    align: Int = VCell.defaultAlign,
+    expandX: Int = VCell.defaultExpandX,
+    expandY: Int = VCell.defaultExpandY,
+    colSpan: Int = VCell.defaultColSpan,
+    uniformX: Boolean = VCell.defaultUniformX,
+    uniformY: Boolean = VCell.defaultUniformY,
+    noinline ref: (Cell<Actor>) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateActor: () -> Unit = {},
+): VCell {
+    val actor = generateAtMostOne<VActor<*>>(generateActor)
+    return VCell(row,
+        column,
+        minWidth,
+        minHeight,
+        prefWidth,
+        prefHeight,
+        maxWidth,
+        maxHeight,
+        space,
+        pad,
+        fillX,
+        fillY,
+        align,
+        expandX,
+        expandY,
+        colSpan,
+        uniformX,
+        uniformY,
+        ref,
+        key, actor).tryReceive()
 }

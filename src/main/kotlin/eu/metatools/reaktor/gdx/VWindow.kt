@@ -10,9 +10,11 @@ import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.ExtentValues
 import eu.metatools.reaktor.gdx.internals.extKeepInStage
 import eu.metatools.reaktor.gdx.internals.extResizeBorder
+import eu.metatools.reaktor.gdx.utils.generateMany
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
 @Deprecated("Unsupported:titleTable")
-open class VWindow(
+open class VWindow (
     val title: String,
     val style: WindowStyle,
     val modal: Boolean = defaultModal,
@@ -42,7 +44,8 @@ open class VWindow(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Table) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: ReceiverCellsChildren = {},
+    children: List<VActor<*>> = defaultChildren,
+    cells: List<VCell> = defaultCells,
 ) : VTable(
     round,
     pad,
@@ -67,7 +70,8 @@ open class VWindow(
     captureListeners,
     ref,
     key,
-    init
+    children,
+    cells
 ) {
     companion object {
         const val defaultModal = true
@@ -75,6 +79,7 @@ open class VWindow(
         const val defaultResizable = false
         const val defaultResizeBorder = 8
         const val defaultKeepInStage = true
+
         private const val ownProps = 7
     }
 
@@ -131,4 +136,72 @@ open class VWindow(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun window(
+    title: String,
+    style: WindowStyle,
+    modal: Boolean = VWindow.defaultModal,
+    movable: Boolean = VWindow.defaultMovable,
+    resizable: Boolean = VWindow.defaultResizable,
+    resizeBorder: Int = VWindow.defaultResizeBorder,
+    keepInStage: Boolean = VWindow.defaultKeepInStage,
+    round: Boolean = VTable.defaultRound,
+    pad: ExtentValues = VTable.defaultPad,
+    fillParent: Boolean = VWidgetGroup.defaultFillParent,
+    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VTable.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (Table) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: ()->Unit = {},
+    generateCells: ()->Unit = {},
+): VWindow {
+    val children = generateMany<VActor<*>>(generateChildren)
+    val cells = generateMany<VCell>(generateCells)
+    return VWindow(title,
+        style,
+        modal,
+        movable,
+        resizable,
+        resizeBorder,
+        keepInStage,
+        round,
+        pad,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key,
+        children,
+        cells).tryReceive()
 }

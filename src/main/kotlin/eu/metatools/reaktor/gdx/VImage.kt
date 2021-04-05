@@ -10,8 +10,9 @@ import com.badlogic.gdx.utils.Scaling
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extAlign
 import eu.metatools.reaktor.gdx.internals.extScaling
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VImage(
+open class VImage (
     val drawable: Drawable? = defaultDrawable,
     val scaling: Scaling = defaultScaling,
     val align: Int = defaultAlign,
@@ -34,7 +35,7 @@ open class VImage(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (Image) -> Unit = defaultRef,
-    key: Any? = consumeKey()
+    key: Any? = consumeKey(),
 ) : VWidget<Image>(
     fillParent,
     layoutEnabled,
@@ -91,4 +92,54 @@ open class VImage(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun image(
+    drawable: Drawable? = VImage.defaultDrawable,
+    scaling: Scaling = VImage.defaultScaling,
+    align: Int = VImage.defaultAlign,
+    fillParent: Boolean = VWidget.defaultFillParent,
+    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VActor.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (Image) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+): VImage {
+    return VImage(drawable,
+        scaling,
+        align,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key).tryReceive()
 }

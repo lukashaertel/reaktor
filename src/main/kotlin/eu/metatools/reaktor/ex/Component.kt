@@ -1,5 +1,7 @@
 package eu.metatools.reaktor.ex
 
+import eu.metatools.reaktor.gdx.utils.runWithReceiver
+import eu.metatools.reaktor.gdx.utils.tryReceive
 import eu.metatools.reaktor.isRerunSet
 
 private val componentResults = HashMap<Any, Pair<Any?, Any?>>()
@@ -36,33 +38,53 @@ private inline fun <T> generateComponent(args: Any?, crossinline block: () -> T)
  * Defines a zero-argument component.
  */
 fun <T> component(block: () -> T) = WithKey0 {
-    generateComponent(Unit) { block() }
+    // Generate component on invoke. Use parameter-stand in object.
+    generateComponent(Unit) {
+        // Reset the receiver for the block so that invocation does not leak.
+        runWithReceiver(null) { block() }
+    }.tryReceive()
 }
 
 /**
  * Defines a one-argument component.
  */
 fun <A1, T> component(block: (A1) -> T) = WithKey1 { a1: A1 ->
-    generateComponent(a1) { block(a1) }
+    // Generate component on invoke. Use parameter-stand in object.
+    generateComponent(a1) {
+        // Reset the receiver for the block so that invocation does not leak.
+        runWithReceiver(null) { block(a1) }
+    }.tryReceive()
 }
 
 /**
  * Defines a two-argument component.
  */
 fun <A1, A2, T> component(block: (A1, A2) -> T) = WithKey2 { a1: A1, a2: A2 ->
-    generateComponent(a1 to a2) { block(a1, a2) }
+    // Generate component on invoke. Use parameter-stand in object.
+    generateComponent(a1 to a2) {
+        // Reset the receiver for the block so that invocation does not leak.
+        runWithReceiver(null) { block(a1, a2) }
+    }.tryReceive()
 }
 
 /**
  * Defines a three-argument component.
  */
 fun <A1, A2, A3, T> component(block: (A1, A2, A3) -> T) = WithKey3 { a1: A1, a2: A2, a3: A3 ->
-    generateComponent(Triple(a1, a2, a3)) { block(a1, a2, a3) }
+    // Generate component on invoke. Use parameter-stand in object.
+    generateComponent(Triple(a1, a2, a3)) {
+        // Reset the receiver for the block so that invocation does not leak.
+        runWithReceiver(null) { block(a1, a2, a3) }
+    }.tryReceive()
 }
 
 /**
  * Defines a four-argument component.
  */
 fun <A1, A2, A3, A4, T> component(block: (A1, A2, A3, A4) -> T) = WithKey4 { a1: A1, a2: A2, a3: A3, a4: A4 ->
-    generateComponent(Triple(a1, a2, a3 to a4)) { block(a1, a2, a3, a4) }
+    // Generate component on invoke. Use parameter-stand in object.
+    generateComponent(Triple(a1, a2, a3 to a4)) {
+        // Reset the receiver for the block so that invocation does not leak.
+        runWithReceiver(null) { block(a1, a2, a3, a4) }
+    }.tryReceive()
 }

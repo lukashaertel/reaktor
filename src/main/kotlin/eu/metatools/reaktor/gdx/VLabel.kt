@@ -8,8 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.utils.Align
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extWrap
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VLabel(
+open class VLabel (
     val text: String,
     val style: LabelStyle,
     val fontScaleX: Float = defaultFontScaleX,
@@ -112,4 +113,62 @@ open class VLabel(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun label(
+    text: String,
+    style: LabelStyle,
+    fontScaleX: Float = VLabel.defaultFontScaleX,
+    fontScaleY: Float = VLabel.defaultFontScaleY,
+    labelAlign: Int = VLabel.defaultLabelAlign,
+    lineAlign: Int = VLabel.defaultLineAlign,
+    wrap: Boolean = VLabel.defaultWrap,
+    fillParent: Boolean = VWidget.defaultFillParent,
+    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VActor.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+   noinline  ref: (Label) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+): VLabel {
+    return VLabel(text,
+        style,
+        fontScaleX,
+        fontScaleY,
+        labelAlign,
+        lineAlign,
+        wrap,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key).tryReceive()
 }

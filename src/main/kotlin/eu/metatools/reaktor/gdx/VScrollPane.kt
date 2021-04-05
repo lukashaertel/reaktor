@@ -8,8 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.*
+import eu.metatools.reaktor.gdx.utils.generateAtMostOne
+import eu.metatools.reaktor.gdx.utils.generateMany
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VScrollPane(
+open class VScrollPane (
     val style: ScrollPaneStyle,
     val scrollX: Float = defaultScrollX,
     val scrollY: Float = defaultScrollY,
@@ -54,7 +57,8 @@ open class VScrollPane(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (ScrollPane) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: ReceiverActorChildren = {},
+    children: List<VActor<*>> = defaultChildren,
+    val actor: VActor<*>? = VCell.defaultActor,
 ) : VWidgetGroup<ScrollPane>(
     fillParent,
     layoutEnabled,
@@ -76,7 +80,7 @@ open class VScrollPane(
     captureListeners,
     ref,
     key,
-    init.toChildren()
+    children
 ) {
     companion object {
         const val defaultScrollX: Float = 0f
@@ -103,13 +107,6 @@ open class VScrollPane(
         const val defaultScrollbarsOnTop: Boolean = false
         const val defaultVariableSizeKnobs: Boolean = true
         private const val ownProps = 25
-    }
-
-    var actor: VActor<*>? = VCell.defaultActor
-        private set
-
-    init {
-        init.toActor()(ReceiveOne { actor = it })
     }
 
     override fun create() = ScrollPane(actor?.make(), style)
@@ -224,4 +221,103 @@ open class VScrollPane(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun scrollPane(
+    style: ScrollPaneStyle,
+    scrollX: Float = VScrollPane.defaultScrollX,
+    scrollY: Float = VScrollPane.defaultScrollY,
+    flickScroll: Boolean = VScrollPane.defaultFlickScroll,
+    disableX: Boolean = VScrollPane.defaultDisableX,
+    disableY: Boolean = VScrollPane.defaultDisableY,
+    overscrollX: Boolean = VScrollPane.defaultOverscrollX,
+    overscrollY: Boolean = VScrollPane.defaultOverscrollY,
+    overscrollDistance: Float = VScrollPane.defaultOverscrollDistance,
+    overscrollSpeedMin: Float = VScrollPane.defaultOverscrollSpeedMin,
+    overscrollSpeedMax: Float = VScrollPane.defaultOverscrollSpeedMax,
+    forceScrollX: Boolean = VScrollPane.defaultForceScrollX,
+    forceScrollY: Boolean = VScrollPane.defaultForceScrollY,
+    flingTime: Float = VScrollPane.defaultFlingTime,
+    clamp: Boolean = VScrollPane.defaultClamp,
+    vScrollOnRight: Boolean = VScrollPane.defaultVScrollOnRight,
+    hScrollOnBottom: Boolean = VScrollPane.defaultHScrollOnBottom,
+    fadeScrollBars: Boolean = VScrollPane.defaultFadeScrollBars,
+    fadeAlphaSeconds: Float = VScrollPane.defaultFadeAlphaSeconds,
+    fadeDelaySeconds: Float = VScrollPane.defaultFadeDelaySeconds,
+    scrollBarTouch: Boolean = VScrollPane.defaultScrollBarTouch,
+    smoothScrolling: Boolean = VScrollPane.defaultSmoothScrolling,
+    scrollbarsOnTop: Boolean = VScrollPane.defaultScrollbarsOnTop,
+    variableSizeKnobs: Boolean = VScrollPane.defaultVariableSizeKnobs,
+    fillParent: Boolean = VWidgetGroup.defaultFillParent,
+    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VActor.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (ScrollPane) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: () -> Unit = {},
+    generateActor: () -> Unit = {},
+): VScrollPane {
+    val children = generateMany<VActor<*>>(generateChildren)
+    val actor = generateAtMostOne<VActor<*>>(generateActor)
+    return VScrollPane(
+        style,
+        scrollX,
+        scrollY,
+        flickScroll,
+        disableX,
+        disableY,
+        overscrollX,
+        overscrollY,
+        overscrollDistance,
+        overscrollSpeedMin,
+        overscrollSpeedMax,
+        forceScrollX,
+        forceScrollY,
+        flingTime,
+        clamp,
+        vScrollOnRight,
+        hScrollOnBottom,
+        fadeScrollBars,
+        fadeAlphaSeconds,
+        fadeDelaySeconds,
+        scrollBarTouch,
+        smoothScrolling,
+        scrollbarsOnTop,
+        variableSizeKnobs,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key,
+        children,
+        actor).tryReceive()
 }

@@ -33,7 +33,7 @@ abstract class ShapeDrawable : BaseDrawable(), TransformDrawable {
             batch.transformMatrix.cpy().scale(scaleX, scaleY, 1f).rotate(0f, 0f, 1f, rotation)
 
         // Draw.
-        enableBlendFor { draw(sharedShapeRenderer,  x, y, width, height) }
+        enableBlendFor { draw(sharedShapeRenderer, x, y, width, height) }
 
         // Resume batch.
         if (resume) batch.begin()

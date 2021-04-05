@@ -54,7 +54,7 @@ fun windowBehavior(
     isMovable: Boolean = true,
     keepWithinStage: Boolean = true,
     isResizable: Boolean = false,
-    isModal: Boolean = false
+    isModal: Boolean = false,
 ) = object : InputListener() {
     var edge = 0
     var dragging = false

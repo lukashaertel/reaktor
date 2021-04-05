@@ -9,8 +9,10 @@ import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.data.Extents
 import eu.metatools.reaktor.gdx.internals.extRound
 import eu.metatools.reaktor.gdx.internals.extRowAlign
+import eu.metatools.reaktor.gdx.utils.generateMany
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VHorizontalGroup(
+open class VHorizontalGroup (
     val round: Boolean = defaultRound,
     val reverse: Boolean = defaultReverse,
     val space: Float = defaultSpace,
@@ -41,7 +43,7 @@ open class VHorizontalGroup(
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (HorizontalGroup) -> Unit = defaultRef,
     key: Any? = consumeKey(),
-    init: Receiver<VActor<*>> = {}
+    children: List<VActor<*>> = defaultChildren,
 ) : VWidgetGroup<HorizontalGroup>(
     fillParent,
     layoutEnabled,
@@ -63,7 +65,7 @@ open class VHorizontalGroup(
     captureListeners,
     ref,
     key,
-    init
+    children
 ) {
     companion object {
         const val defaultRound = true
@@ -77,7 +79,6 @@ open class VHorizontalGroup(
         const val defaultExpand = false
         const val defaultRowAlign = 0
         val defaultTouchable = Touchable.childrenOnly
-
 
         private const val ownProps = 10
     }
@@ -144,4 +145,72 @@ open class VHorizontalGroup(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline fun horizontalGroup(
+    round: Boolean = VHorizontalGroup.defaultRound,
+    reverse: Boolean = VHorizontalGroup.defaultReverse,
+    space: Float = VHorizontalGroup.defaultSpace,
+    wrapSpace: Float = VHorizontalGroup.defaultWrapSpace,
+    pad: Extents = VHorizontalGroup.defaultPad,
+    align: Int = VHorizontalGroup.defaultAlign,
+    fill: Float = VHorizontalGroup.defaultFill,
+    expand: Boolean = VHorizontalGroup.defaultWrap,
+    wrap: Boolean = VHorizontalGroup.defaultExpand,
+    rowAlign: Int = VHorizontalGroup.defaultRowAlign,
+    fillParent: Boolean = VWidgetGroup.defaultFillParent,
+    layoutEnabled: Boolean = VWidgetGroup.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VHorizontalGroup.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (HorizontalGroup) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+    generateChildren: ()->Unit = {},
+): VHorizontalGroup {
+    val children = generateMany<VActor<*>>(generateChildren)
+    return VHorizontalGroup(
+        round,
+        reverse,
+        space,
+        wrapSpace,
+        pad,
+        align,
+        fill,
+        expand,
+        wrap,
+        rowAlign,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key,
+        children).tryReceive()
 }

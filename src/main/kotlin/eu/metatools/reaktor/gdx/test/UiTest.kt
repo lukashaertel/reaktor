@@ -140,21 +140,20 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
 //            }
         }
 
-        VStage(viewport = viewport) {
-            +VImage(drawable = backgroundDrawable, fillParent = true)
-            +VTable(fillParent = true) {
+        stage(viewport = viewport) {
+            image(drawable = backgroundDrawable, fillParent = true)
+            table(fillParent = true) {
                 // TODO: Cells is needed here, otherwise state in filler is made twice.
-                cells {
-                    +topBar(state, { valueA++ }, { valueB++ })
-                    +filler(valueA, valueB)
-                    +bottomBar(state, if (valueA < valueB) mapOf("A" to valueA, "B" to valueB) else
-                        mapOf("B" to valueB, "A" to valueA))
-                }
+                topBar(state, { valueA++ }, { valueB++ })
+                filler(valueA, valueB)
+                bottomBar(state, if (valueA < valueB) mapOf("A" to valueA, "B" to valueB) else
+                    mapOf("B" to valueB, "A" to valueA))
+
             }
 
             // Add window if it is visible.
             if (state.windowVisible) {
-                +VWindow(
+                window(
                     title = "Title",
                     movable = true,
                     resizable = true,
@@ -163,17 +162,15 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
                     pad = ExtentValues(40f.px, 10f.px, 10f.px, 10f.px),
                     width = 500f,
                     height = 200f) {
-                    cells {
-                        +VCell(row = 0, column = 0, expandX = 1, expandY = 0) {
-                            +button("Increase A", TextureRegionDrawable(iconsAtlas["research"]!!)) { valueA++ }
-                        }
-                        +VCell(row = 0, column = 1, expandX = 1, expandY = 0) {
-                            +button("Increase B", TextureRegionDrawable(iconsAtlas["gold"]!!)) { valueB++ }
-                        }
-                        +VCell(row = 0, column = 2, expandX = 1, expandY = 0) {
-                            +button("Close", null) {
-                                this@UISimpleTest.state = state.copy(windowVisible = false)
-                            }
+                    cell(row = 0, column = 0, expandX = 1, expandY = 0) {
+                        button("Increase A", TextureRegionDrawable(iconsAtlas["research"]!!)) { valueA++ }
+                    }
+                    cell(row = 0, column = 1, expandX = 1, expandY = 0) {
+                        button("Increase B", TextureRegionDrawable(iconsAtlas["gold"]!!)) { valueB++ }
+                    }
+                    cell(row = 0, column = 2, expandX = 1, expandY = 0) {
+                        button("Close", null) {
+                            this@UISimpleTest.state = state.copy(windowVisible = false)
                         }
                     }
                 }
@@ -186,17 +183,12 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     private fun bordered(
         ref: (Container<Actor>) -> Unit = {},
         listeners: List<EventListener> = listOf(),
-        content: VActor<*>,
-    ) = VContainer(ref = ref, listeners = listeners, pad = borderedPad) {
-        actor {
-            +VContainer(pad = borderedPad, background = whiteBorder) {
-                actor {
-                    +content
-                }
-            }
+        content: () -> Unit,
+    ) = container(ref = ref, listeners = listeners, pad = borderedPad) {
+        container(pad = borderedPad, background = whiteBorder) {
+            content()
         }
     }
-
 
     private val button = component { label: String, img: Drawable?, clicked: () -> Unit ->
         // Base mutable states.
@@ -222,18 +214,21 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
         }
 
         // Return bordered horizontal group with optional image and button.
-        bordered({ root = it }, listOf(listener), VHorizontalGroup(space = commonDimension) {
-            if (img != null)
-                +VImage(drawable = img)
+        bordered({ root = it }, listOf(listener)) {
+            horizontalGroup(space = commonDimension) {
+                if (img != null)
+                    image(drawable = img)
 
-            +VMsdfLabel(label,
-                shader = msdfShader,
-                font = msdfFont,
-                fontStyle = style)
-        })
+                msdfLabel(label,
+                    shader = msdfShader,
+                    font = msdfFont,
+                    fontStyle = style)
+            }
+        }
     }
+
     private val progress = component { filled: Drawable, open: Drawable, progress: Float ->
-        VImage(object : BaseDrawable() {
+        image(object : BaseDrawable() {
             override fun draw(batch: Batch, x: Float, y: Float, width: Float, height: Float) {
                 val mid = progress * width
                 if (mid > 0f)
@@ -245,7 +240,7 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     }
 
     private val debugLabel = component { label: Any, value: Any ->
-        VMsdfLabel(
+        msdfLabel(
             text = "$label: $value",
             shader = msdfShader, font = msdfFont,
             fontStyle = FontStyle(fontWhite).setColor(Color.RED)
@@ -253,59 +248,51 @@ class UISimpleTest : InputAdapter(), ApplicationListener {
     }
 
     private val bottomBar = component { state: State, extra: Map<Any, Any> ->
-        VCell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
-            +VContainer(background = whiteBorder, fillX = 1f) {
-                actor {
-                    +VHorizontalGroup(pad = Extents(8f, 2f), space = 20f) {
-                        +VMsdfLabel(
-                            text = state.toString(),
-                            shader = msdfShader, font = msdfFont,
-                            fontStyle = FontStyle(fontWhite)
-                        )
+        cell(row = 2, expandX = 1, fillX = 1f, fillY = 1f) {
+            container(background = whiteBorder, fillX = 1f) {
+                horizontalGroup(pad = Extents(8f, 2f), space = 20f) {
+                    msdfLabel(
+                        text = state.toString(),
+                        shader = msdfShader, font = msdfFont,
+                        fontStyle = FontStyle(fontWhite)
+                    )
 
-                        // Iterating in a loop. Key must be set because the location of the call will be the same, but
-                        // the arguments are actually different.
-                        for ((k, v) in extra)
-                            +debugLabel(key = k, k, v)
-                    }
+                    // Iterating in a loop. Key must be set because the location of the call will be the same, but
+                    // the arguments are actually different.
+                    for ((k, v) in extra)
+                        debugLabel(key = k, k, v)
                 }
             }
         }
     }
 
     private val filler = component { valueA: Number, valueB: Number ->
-        val emptyDrawable by useState { BaseDrawable() }
         val num = minOf(valueA.toFloat(), valueB.toFloat())
         val den = maxOf(valueA.toFloat(), valueB.toFloat())
         val ratio = if (den == 0f) 0f else num / den
 
-        VCell(row = 1, expandY = 1) {
-            +VContainer(minWidth = 200.px,
+        cell(row = 1, expandY = 1) {
+            container(minWidth = 200.px,
                 minHeight = (commonDimension * 2f).px,
                 background = whiteBorder,
                 pad = ExtentValues(commonDimension)) {
-                actor {
-                    +progress(progressRedDrawable, progressBlueDrawable, ratio)
-                }
+                progress(progressRedDrawable, progressBlueDrawable, ratio)
             }
         }
     }
 
-
     private val topBar = component { state: State, onMenu: () -> Unit, onGreatPeople: () -> Unit ->
-        VCell(row = 0, expandX = 1, fillX = 1f) {
-            +VContainer(fillX = 1f) {
-                actor {
-                    +VHorizontalGroup(space = -commonDimension) {
-                        +button("Menu", iconsAtlas["checkbox"].asDrawable()) {
-                            onMenu()
-                        }
-                        +button("Great people", iconsAtlas["great_people"].asDrawable()) {
-                            onGreatPeople()
-                        }
-                        +button("Things and stuff", null) {
-                            this@UISimpleTest.state = state.copy(windowVisible = true)
-                        }
+        cell(row = 0, expandX = 1, fillX = 1f) {
+            container(fillX = 1f) {
+                horizontalGroup(space = -commonDimension) {
+                    button("Menu", iconsAtlas["checkbox"].asDrawable()) {
+                        onMenu()
+                    }
+                    button("Great people", iconsAtlas["great_people"].asDrawable()) {
+                        onGreatPeople()
+                    }
+                    button("Things and stuff", null) {
+                        this@UISimpleTest.state = state.copy(windowVisible = true)
                     }
                 }
             }

@@ -6,7 +6,7 @@ import eu.metatools.reaktor.ex.consumeKey
 /**
  * Base class for virtual nodes.
  */
-abstract class VBase<A : Any>(
+abstract class VBase<A : Any> internal constructor(
     override val key: Any? = consumeKey(),
 ) : Virtual<A>() {
     override fun make() = create().also(::assign)

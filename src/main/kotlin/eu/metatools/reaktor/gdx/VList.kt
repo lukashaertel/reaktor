@@ -11,9 +11,10 @@ import eu.metatools.reaktor.Delegation
 import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extAlign
 import eu.metatools.reaktor.gdx.internals.extTypeToSelect
+import eu.metatools.reaktor.gdx.utils.tryReceive
 import com.badlogic.gdx.scenes.scene2d.ui.List as GdxList
 
-open class VList<T>(
+open class VList<T> (
     val style: ListStyle,
     val items: List<T>,
     val typeToSelect: Boolean = defaultTypeToSelect,
@@ -166,3 +167,57 @@ val ChangeListener.ChangeEvent.listSelection: ArraySelection<out Any> get() = (t
  * For a change event from a [GdxList], returns the selected item index.
  */
 val ChangeListener.ChangeEvent.listSelectedIndex get() = (target as GdxList<*>).selectedIndex
+
+inline fun <T> list(
+    style: ListStyle,
+    items: List<T>,
+    typeToSelect: Boolean = VList.defaultTypeToSelect,
+    selected: T? = VList.defaultSelected as T?,
+    align: Int = VList.defaultAlign,
+    fillParent: Boolean = VWidget.defaultFillParent,
+    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VActor.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+   noinline  ref: (GdxList<T>) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+): VList<T> {
+    return VList(style,
+        items,
+        typeToSelect,
+        selected,
+        align,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key).tryReceive()
+}

@@ -13,8 +13,9 @@ import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extShader
 import eu.metatools.reaktor.gdx.internals.extSkin
 import eu.metatools.reaktor.gdx.internals.extWrap
+import eu.metatools.reaktor.gdx.utils.tryReceive
 
-open class VMsdfLabel(
+open class VMsdfLabel (
     val text: CharSequence?,
     val shader: MsdfShader,
     val font: MsdfFont,
@@ -42,7 +43,7 @@ open class VMsdfLabel(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (MsdfLabel) -> Unit = defaultRef,
-    key: Any? = consumeKey()
+    key: Any? = consumeKey(),
 ) : VWidget<MsdfLabel>(
     fillParent,
     layoutEnabled,
@@ -134,4 +135,64 @@ open class VMsdfLabel(
             else -> super.updateActual(prop - ownProps, actual, value)
         }
     }
+}
+
+inline  fun msdfLabel(
+    text: CharSequence?,
+    shader: MsdfShader,
+    font: MsdfFont,
+    fontStyle: FontStyle = VMsdfLabel.defaultFontStyle,
+    labelAlign: Int = VMsdfLabel.defaultLabelAlign,
+    lineAlign: Int = VMsdfLabel.defaultLineAlign,
+    wrap: Boolean = VMsdfLabel.defaultWrap,
+    disabled: Boolean = VMsdfLabel.defaultDisabled,
+    fillParent: Boolean = VWidget.defaultFillParent,
+    layoutEnabled: Boolean = VWidget.defaultLayoutEnabled,
+    color: Color = VActor.defaultColor,
+    name: String? = VActor.defaultName,
+    originX: Float = VActor.defaultOriginX,
+    originY: Float = VActor.defaultOriginY,
+    x: Float = VActor.defaultX,
+    y: Float = VActor.defaultY,
+    width: Float = VActor.defaultWidth,
+    height: Float = VActor.defaultHeight,
+    rotation: Float = VActor.defaultRotation,
+    scaleX: Float = VActor.defaultScaleX,
+    scaleY: Float = VActor.defaultScaleY,
+    visible: Boolean = VActor.defaultVisible,
+    debug: Boolean = VActor.defaultDebug,
+    touchable: Touchable = VActor.defaultTouchable,
+    listeners: List<EventListener> = VActor.defaultListeners,
+    captureListeners: List<EventListener> = VActor.defaultCaptureListeners,
+    noinline ref: (MsdfLabel) -> Unit = VRef.defaultRef,
+    key: Any? = consumeKey(),
+): VMsdfLabel {
+    return VMsdfLabel(text,
+        shader,
+        font,
+        fontStyle,
+        labelAlign,
+        lineAlign,
+        wrap,
+        disabled,
+        fillParent,
+        layoutEnabled,
+        color,
+        name,
+        originX,
+        originY,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        scaleX,
+        scaleY,
+        visible,
+        debug,
+        touchable,
+        listeners,
+        captureListeners,
+        ref,
+        key).tryReceive()
 }

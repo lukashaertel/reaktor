@@ -8,7 +8,7 @@ import eu.metatools.reaktor.ex.consumeKey
 import eu.metatools.reaktor.gdx.internals.extFillParent
 import eu.metatools.reaktor.gdx.internals.extLayoutEnabled
 
-abstract class VWidget<A : Widget>(
+abstract class VWidget<A : Widget> internal constructor(
     val fillParent: Boolean = defaultFillParent,
     val layoutEnabled: Boolean = defaultLayoutEnabled,
     color: Color = defaultColor,
@@ -28,7 +28,7 @@ abstract class VWidget<A : Widget>(
     listeners: List<EventListener> = defaultListeners,
     captureListeners: List<EventListener> = defaultCaptureListeners,
     ref: (A) -> Unit = defaultRef,
-    key: Any? = consumeKey()
+    key: Any? = consumeKey(),
 ) : VActor<A>(
     color,
     name,
